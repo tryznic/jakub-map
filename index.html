@@ -6,34 +6,36 @@
   <title>Jakub Trýzna | Interaktivní mapa služeb</title>
   <style>
     :root {
-      --blue: #1d6fff;
-      --blue2: #00b8d9;
-      --dark: #07111f;
-      --text: #0b1730;
-      --muted: #60708a;
-      --glass: rgba(255, 255, 255, 0.72);
-      --border: rgba(255, 255, 255, 0.7);
-      --shadow: 0 24px 80px rgba(20, 58, 120, 0.16);
+      --blue: #146bff;
+      --blue2: #00b6e8;
+      --navy: #071631;
+      --text: #0c1733;
+      --muted: #5d6d89;
+      --line: rgba(20, 107, 255, 0.46);
+      --glass: rgba(255, 255, 255, 0.76);
+      --shadow: 0 28px 80px rgba(31, 93, 180, 0.14);
     }
 
     * { box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 15% 20%, rgba(29, 111, 255, 0.18), transparent 30%),
-        radial-gradient(circle at 85% 70%, rgba(0, 184, 217, 0.16), transparent 32%),
-        linear-gradient(135deg, #f7fbff, #ffffff 45%, #eef6ff);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
+      background:
+        radial-gradient(circle at 50% 35%, rgba(20,107,255,0.13), transparent 30%),
+        radial-gradient(circle at 10% 28%, rgba(0,182,232,0.12), transparent 26%),
+        radial-gradient(circle at 90% 70%, rgba(20,107,255,0.12), transparent 28%),
+        linear-gradient(135deg, #f8fbff 0%, #ffffff 46%, #eef7ff 100%);
       overflow-x: hidden;
     }
 
     .page {
-      width: 100%;
       min-height: 100vh;
-      padding: 34px;
+      padding: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -41,16 +43,17 @@
 
     .stage {
       position: relative;
-      width: min(1440px, 100%);
-      min-height: 840px;
-      border-radius: 44px;
-      background: rgba(255,255,255,0.62);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(255,255,255,0.85);
+      width: min(1640px, 100%);
+      min-height: 920px;
+      padding: 46px 54px 52px;
+      border-radius: 46px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.84), rgba(244,250,255,0.68));
+      border: 1px solid rgba(255,255,255,0.95);
       box-shadow: var(--shadow);
       overflow: hidden;
-      padding: 34px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
     }
 
     .stage::before {
@@ -58,126 +61,42 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(120deg, rgba(255,255,255,0.65), transparent 38%),
-        radial-gradient(circle at 50% 42%, rgba(29, 111, 255, 0.08), transparent 34%);
+        linear-gradient(120deg, rgba(255,255,255,0.9), transparent 34%),
+        radial-gradient(circle at 50% 42%, rgba(20,107,255,0.07), transparent 38%);
       pointer-events: none;
     }
 
-    header {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .logo {
-      width: 190px;
-      max-height: 72px;
-      object-fit: contain;
-    }
-
-    .contact {
-      text-align: right;
-      font-size: 15px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .contact strong { color: var(--text); }
-
-    .headline {
+    .top {
       position: relative;
       z-index: 3;
       text-align: center;
-      margin-top: 12px;
+      margin-bottom: 26px;
     }
 
-    .headline h1 {
+    .top h1 {
       margin: 0;
-      font-size: clamp(34px, 4vw, 64px);
-      line-height: 1.04;
-      letter-spacing: -0.06em;
-      font-weight: 850;
+      font-size: clamp(38px, 4vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -0.07em;
+      font-weight: 900;
     }
 
-    .headline h1 span {
-      color: var(--blue);
-    }
+    .top h1 span { color: var(--blue); }
 
-    .headline p {
+    .top p {
       margin: 18px auto 0;
-      max-width: 720px;
-      font-size: clamp(17px, 1.4vw, 22px);
-      line-height: 1.55;
+      max-width: 850px;
       color: var(--muted);
+      font-size: clamp(18px, 1.3vw, 23px);
+      line-height: 1.55;
     }
 
     .map {
       position: relative;
       z-index: 2;
-      height: 610px;
-      margin-top: 28px;
+      height: 720px;
+      margin-top: 10px;
     }
-
-    .center {
-      position: absolute;
-      left: 50%;
-      top: 49%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      z-index: 5;
-    }
-
-    .portraitWrap {
-      width: clamp(230px, 23vw, 335px);
-      height: clamp(230px, 23vw, 335px);
-      border-radius: 50%;
-      padding: 9px;
-      background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(217,235,255,0.55));
-      box-shadow:
-        0 22px 70px rgba(29,111,255,0.22),
-        inset 0 0 0 1px rgba(255,255,255,0.9);
-    }
-
-    .portrait {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      border: 1px solid rgba(255,255,255,0.85);
-    }
-
-    .name {
-      margin-top: 18px;
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-    }
-
-    .role {
-      color: var(--blue);
-      font-weight: 650;
-      margin-top: 4px;
-    }
-
-    .quote {
-      margin: 16px auto 0;
-      width: min(420px, 90vw);
-      padding: 16px 22px;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.8);
-      border: 1px solid rgba(210,225,245,0.8);
-      color: var(--text);
-      box-shadow: 0 14px 40px rgba(30, 80, 150, 0.08);
-      font-size: 18px;
-      line-height: 1.42;
-    }
-
-    .quote b { color: var(--blue); }
 
     svg.lines {
       position: absolute;
@@ -189,249 +108,354 @@
     }
 
     .line {
-      stroke: rgba(29,111,255,0.38);
-      stroke-width: 2;
-      filter: drop-shadow(0 0 8px rgba(29,111,255,0.35));
+      stroke: var(--line);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 10px rgba(20,107,255,0.25));
     }
 
-    .node {
+    .center {
+      position: absolute;
+      left: 50%;
+      top: 43%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      text-align: center;
+    }
+
+    .portraitWrap {
+      width: 360px;
+      height: 360px;
+      padding: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.96);
+      box-shadow:
+        0 28px 90px rgba(20,107,255,0.18),
+        inset 0 0 0 1px rgba(255,255,255,0.95);
+    }
+
+    .portrait {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      border-radius: 50%;
+      border: 1px solid rgba(225,236,252,0.9);
+    }
+
+    .identity {
+      width: 350px;
+      margin: -12px auto 0;
+      padding: 34px 28px 28px;
+      border-radius: 36px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(220,235,255,0.9);
+      box-shadow: 0 22px 60px rgba(31, 93, 180, 0.12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .identity h2 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -0.065em;
+      font-weight: 900;
+    }
+
+    .identity .role {
+      margin-top: 8px;
+      font-weight: 800;
+      color: var(--blue);
+      font-size: 18px;
+    }
+
+    .identity .divider {
+      height: 1px;
+      width: 78%;
+      margin: 22px auto;
+      background: rgba(20,107,255,0.16);
+    }
+
+    .identity p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 16px;
+    }
+
+    .identity b { color: var(--blue); }
+
+    .card {
       position: absolute;
       z-index: 4;
-      width: 230px;
-      min-height: 230px;
-      border: none;
-      padding: 22px;
-      border-radius: 36px;
+      width: 315px;
+      min-height: 300px;
+      padding: 28px;
+      border: 0;
+      border-radius: 34px;
       background: var(--glass);
-      backdrop-filter: blur(28px) saturate(1.35);
-      -webkit-backdrop-filter: blur(28px) saturate(1.35);
-      border: 1px solid rgba(255,255,255,0.9);
-      box-shadow:
-        0 22px 60px rgba(20, 70, 150, 0.13),
-        inset 0 1px 0 rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow: 0 26px 80px rgba(31, 93, 180, 0.12);
+      backdrop-filter: blur(30px) saturate(1.2);
+      -webkit-backdrop-filter: blur(30px) saturate(1.2);
       cursor: pointer;
-      text-align: left;
       color: var(--text);
+      text-align: left;
       transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
     }
 
-    .node:hover {
+    .card:hover {
       transform: translateY(-8px) scale(1.02);
-      box-shadow:
-        0 30px 90px rgba(20, 70, 150, 0.22),
-        0 0 0 1px rgba(29,111,255,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.95);
-      background: rgba(255,255,255,0.86);
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 36px 100px rgba(31, 93, 180, 0.22);
     }
 
-    .node .icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 22px;
+    .icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 24px;
       display: grid;
       place-items: center;
-      font-size: 34px;
-      background: linear-gradient(145deg, #1d6fff, #00b8d9);
+      font-size: 38px;
+      background: linear-gradient(145deg, var(--blue), var(--blue2));
       color: white;
-      box-shadow: 0 14px 34px rgba(29,111,255,0.28);
-      margin-bottom: 18px;
+      box-shadow: 0 18px 44px rgba(20,107,255,0.28);
+      margin-bottom: 28px;
     }
 
-    .node h2 {
+    .card h3 {
       margin: 0;
-      font-size: 26px;
-      letter-spacing: -0.045em;
-      line-height: 1.05;
+      font-size: 32px;
+      letter-spacing: -0.06em;
+      line-height: 1.03;
+      font-weight: 900;
     }
 
-    .node p {
-      margin: 10px 0 0;
+    .card p {
+      margin: 16px 0 0;
       color: var(--muted);
-      line-height: 1.35;
-      font-size: 15px;
+      font-size: 18px;
+      line-height: 1.5;
     }
 
-    .node small {
+    .open {
       display: inline-flex;
-      margin-top: 18px;
+      align-items: center;
+      gap: 10px;
+      margin-top: 26px;
       color: var(--blue);
-      font-weight: 800;
-      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .13em;
       text-transform: uppercase;
-      letter-spacing: .12em;
+      font-size: 14px;
     }
 
-    .n1 { left: 2%; top: 6%; }
-    .n2 { right: 2%; top: 6%; }
-    .n3 { left: 2%; bottom: 5%; }
-    .n4 { right: 2%; bottom: 5%; }
-    .n5 { left: 50%; bottom: -2%; transform: translateX(-50%); }
-    .n5:hover { transform: translateX(-50%) translateY(-8px) scale(1.02); }
+    .open::after { content: "›"; font-size: 24px; line-height: 0; }
+
+    .hypo { left: 3%; top: 7%; }
+    .invest { right: 3%; top: 7%; }
+    .poj { left: 3%; bottom: 6%; }
+    .pece { right: 3%; bottom: 6%; }
+
+    .servicePill {
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 6;
+      width: min(760px, 88%);
+      padding: 18px 26px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.84);
+      border: 1px solid rgba(210,226,248,0.95);
+      box-shadow: 0 22px 60px rgba(31, 93, 180, 0.11);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      text-align: center;
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 19px;
+    }
+
+    .servicePill b { color: var(--blue); }
+
+    .contact {
+      position: absolute;
+      right: 36px;
+      bottom: 26px;
+      z-index: 7;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    .contact strong { color: var(--text); }
 
     .modalBackdrop {
       position: fixed;
       inset: 0;
-      background: rgba(7,17,31,0.38);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
       display: none;
       align-items: center;
       justify-content: center;
       padding: 22px;
       z-index: 50;
+      background: rgba(9, 18, 38, 0.36);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
 
     .modalBackdrop.active { display: flex; }
 
     .modal {
+      position: relative;
       width: min(980px, 96vw);
       max-height: 88vh;
       overflow: auto;
+      padding: 36px;
       border-radius: 38px;
-      background: rgba(255,255,255,0.88);
-      backdrop-filter: blur(34px) saturate(1.35);
-      -webkit-backdrop-filter: blur(34px) saturate(1.35);
-      border: 1px solid rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.96);
       box-shadow: 0 40px 120px rgba(0,0,0,0.22);
-      padding: 34px;
-      position: relative;
+      backdrop-filter: blur(34px) saturate(1.25);
+      -webkit-backdrop-filter: blur(34px) saturate(1.25);
       animation: pop .2s ease-out;
     }
 
     @keyframes pop {
-      from { transform: translateY(18px) scale(.98); opacity: 0; }
-      to { transform: translateY(0) scale(1); opacity: 1; }
+      from { opacity: 0; transform: translateY(18px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .close {
       position: absolute;
       right: 24px;
       top: 24px;
-      width: 44px;
-      height: 44px;
+      width: 46px;
+      height: 46px;
       border: none;
       border-radius: 50%;
-      background: rgba(235,242,252,0.95);
-      font-size: 28px;
-      line-height: 1;
-      cursor: pointer;
+      background: rgba(235,243,255,0.94);
       color: var(--text);
+      font-size: 30px;
+      cursor: pointer;
     }
 
     .modalHead {
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: 20px;
+      gap: 22px;
       align-items: center;
-      padding-right: 54px;
+      padding-right: 58px;
     }
 
     .modalIcon {
-      width: 82px;
-      height: 82px;
-      border-radius: 26px;
+      width: 88px;
+      height: 88px;
+      border-radius: 28px;
       display: grid;
       place-items: center;
-      font-size: 44px;
+      font-size: 46px;
+      background: linear-gradient(145deg, var(--blue), var(--blue2));
       color: white;
-      background: linear-gradient(145deg, #1d6fff, #00b8d9);
-      box-shadow: 0 18px 46px rgba(29,111,255,.25);
+      box-shadow: 0 18px 46px rgba(20,107,255,.25);
     }
 
-    .modal h3 {
+    .modal h4 {
       margin: 0;
-      font-size: clamp(30px, 4vw, 54px);
-      letter-spacing: -0.06em;
+      font-size: clamp(34px, 4vw, 56px);
+      letter-spacing: -0.07em;
       line-height: 1.02;
     }
 
     .modal .lead {
-      margin: 10px 0 0;
+      margin: 12px 0 0;
       color: var(--muted);
       font-size: 20px;
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     .details {
-      margin-top: 28px;
+      margin-top: 30px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
     }
 
     .detailItem {
-      padding: 18px 18px;
+      padding: 18px;
       border-radius: 22px;
-      background: rgba(247,251,255,0.85);
-      border: 1px solid rgba(210,225,245,0.82);
+      background: rgba(247,251,255,0.9);
+      border: 1px solid rgba(213,228,249,0.88);
       display: grid;
       grid-template-columns: 36px 1fr;
-      gap: 12px;
+      gap: 14px;
       align-items: start;
     }
 
     .check {
-      width: 32px;
-      height: 32px;
-      border-radius: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 13px;
+      background: rgba(20,107,255,0.11);
       display: grid;
       place-items: center;
-      background: rgba(29,111,255,0.12);
       color: var(--blue);
       font-weight: 900;
     }
 
     .detailItem b {
       display: block;
-      margin-bottom: 3px;
       font-size: 17px;
+      margin-bottom: 4px;
     }
 
     .detailItem span {
       color: var(--muted);
-      line-height: 1.42;
       font-size: 15px;
+      line-height: 1.45;
     }
 
     .bottomClaim {
-      margin-top: 26px;
-      padding: 20px 24px;
+      margin-top: 28px;
+      padding: 22px 26px;
       border-radius: 24px;
-      background: linear-gradient(135deg, rgba(29,111,255,0.12), rgba(0,184,217,0.08));
-      color: var(--text);
+      background: linear-gradient(135deg, rgba(20,107,255,0.11), rgba(0,182,232,0.07));
+      border: 1px solid rgba(20,107,255,0.14);
       font-size: 19px;
-      line-height: 1.45;
-      border: 1px solid rgba(29,111,255,0.12);
+      line-height: 1.48;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1180px) {
       .stage { min-height: auto; }
       .map {
         height: auto;
         display: grid;
         grid-template-columns: 1fr;
         gap: 18px;
-        padding-top: 28px;
       }
-      .center, .node {
+      svg.lines { display: none; }
+      .center, .card, .servicePill, .contact {
         position: relative;
         inset: auto;
-        transform: none !important;
+        transform: none;
         width: 100%;
-        min-height: auto;
       }
       .center { order: -1; }
-      svg.lines { display: none; }
-      .portraitWrap { margin: 0 auto; width: 240px; height: 240px; }
+      .portraitWrap { margin: 0 auto; width: 260px; height: 260px; }
+      .identity { width: min(420px, 100%); }
+      .contact { text-align: center; margin-top: 22px; }
+      .servicePill { margin-top: 8px; }
       .details { grid-template-columns: 1fr; }
-      header { flex-direction: column; align-items: flex-start; }
-      .contact { text-align: left; }
     }
 
     @media (max-width: 640px) {
       .page { padding: 14px; }
-      .stage { border-radius: 28px; padding: 22px; }
-      .node { border-radius: 28px; }
+      .stage { padding: 24px; border-radius: 30px; }
+      .card { min-height: auto; border-radius: 28px; }
+      .portraitWrap { width: 220px; height: 220px; }
+      .identity h2 { font-size: 32px; }
       .modal { padding: 24px; border-radius: 28px; }
       .modalHead { grid-template-columns: 1fr; }
     }
@@ -440,72 +464,68 @@
 <body>
   <main class="page">
     <section class="stage">
-      <header>
-        <div></div>
-        <div class="contact">
-          <strong>Jakub Trýzna</strong><br />
-          +420 777 764 945 · j.tryzna@fair-life.cz
-        </div>
-      </header>
-
-      <div class="headline">
-        <h1>Klid a jistota <span>ve vašich financích.</span></h1>
-        <p>Zařídím to, co je složité. Hlídám proces, detaily a propojuji správné lidi, abyste se mohli soustředit na to, co je pro vás důležité.</p>
+      <div class="top">
+        <h1>Kompletní <span>finanční služby</span></h1>
+        <p>Řídím proces, hlídám detaily a propojuji správné lidi, abyste se mohli soustředit na to, co je pro vás důležité.</p>
       </div>
 
       <section class="map" aria-label="Interaktivní mapa služeb">
-        <svg class="lines" viewBox="0 0 1440 610" preserveAspectRatio="none">
-          <line class="line" x1="720" y1="300" x2="250" y2="135" />
-          <line class="line" x1="720" y1="300" x2="1190" y2="135" />
-          <line class="line" x1="720" y1="300" x2="250" y2="475" />
-          <line class="line" x1="720" y1="300" x2="1190" y2="475" />
-          <line class="line" x1="720" y1="430" x2="720" y2="590" />
+        <svg class="lines" viewBox="0 0 1440 720" preserveAspectRatio="none">
+          <line class="line" x1="720" y1="310" x2="280" y2="190" />
+          <line class="line" x1="720" y1="310" x2="1160" y2="190" />
+          <line class="line" x1="720" y1="390" x2="280" y2="540" />
+          <line class="line" x1="720" y1="390" x2="1160" y2="540" />
         </svg>
 
         <div class="center">
           <div class="portraitWrap">
             <img src="fotka.jpg" alt="Jakub Trýzna" class="portrait" />
           </div>
-          <div class="name">Jakub Trýzna</div>
-          <div class="role">Váš finanční specialista</div>
-          <div class="quote">Nejde jen o produkty. <b>Jde o partnerství, na které se můžete spolehnout.</b></div>
+          <div class="identity">
+            <h2>Jakub Trýzna</h2>
+            <div class="role">Váš finanční specialista</div>
+            <div class="divider"></div>
+            <p>Nejde jen o produkty. Jde o partnerství, <b>na které se můžete spolehnout.</b></p>
+          </div>
         </div>
 
-        <button class="node n1" data-modal="hypoteky">
+        <button class="card hypo" data-modal="hypoteky">
           <div class="icon">🏠</div>
-          <h2>Hypotéky</h2>
+          <h3>Hypotéky</h3>
           <p>Řídím celý hypoteční proces od prvního dotazníku až po čerpání.</p>
-          <small>Otevřít detail</small>
+          <span class="open">Otevřít detail</span>
         </button>
 
-        <button class="node n2" data-modal="investice">
+        <button class="card invest" data-modal="investice">
           <div class="icon">📈</div>
-          <h2>Investice</h2>
+          <h3>Investice</h3>
           <p>Tvořím dlouhodobou strategii podle cílů, ne podle produktů.</p>
-          <small>Otevřít detail</small>
+          <span class="open">Otevřít detail</span>
         </button>
 
-        <button class="node n3" data-modal="pojisteni">
+        <button class="card poj" data-modal="pojisteni">
           <div class="icon">🛡️</div>
-          <h2>Pojištění</h2>
+          <h3>Pojištění</h3>
           <p>Nastavuji krytí podle reality, ne podle tabulek.</p>
-          <small>Otevřít detail</small>
+          <span class="open">Otevřít detail</span>
         </button>
 
-        <button class="node n4" data-modal="pece">
+        <button class="card pece" data-modal="pece">
           <div class="icon">❤️</div>
-          <h2>Poúrazová péče</h2>
+          <h3>Poúrazová péče</h3>
           <p>Pomáhám i ve chvíli, kdy nastane problém.</p>
-          <small>Otevřít detail</small>
+          <span class="open">Otevřít detail</span>
         </button>
 
-        <button class="node n5" data-modal="servis">
-          <div class="icon">🤝</div>
-          <h2>Servis</h2>
-          <p>Šetřím vám čas, hlídám detaily a propojuji správné lidi.</p>
-          <small>Otevřít detail</small>
-        </button>
+        <div class="servicePill">
+          Zařídím to, co je složité. <b>Ušetřím vám čas, energii i starosti.</b>
+        </div>
       </section>
+
+      <div class="contact">
+        <strong>Kontakt</strong><br />
+        +420 777 764 945 · j.tryzna@fair-life.cz
+      </div>
     </section>
   </main>
 
@@ -573,20 +593,6 @@
           ["Nejste na to sami", "Když nastane problém, máte někoho, kdo vám pomůže držet další kroky pohromadě."],
         ],
         claim: "Tohle není náhrada lékařské péče. Je to praktická pomoc, abyste v náročné situaci nebyli na všechno sami."
-      },
-      servis: {
-        icon: "🤝",
-        title: "Servis a dlouhodobá péče",
-        lead: "Finance nejsou jednorázové rozhodnutí. Hlídám, aby nastavení dávalo smysl i v čase.",
-        items: [
-          ["Šetřím vám čas", "Přebírám komunikaci, administrativu a návaznosti, které klienti obvykle řeší sami."],
-          ["Hlídám detaily", "Dohlížím na termíny, podmínky, dokumenty a návaznost jednotlivých kroků."],
-          ["Propojuji správné lidi", "Spolupracuji s odborníky, kteří odvádí špičkovou práci ve své oblasti."],
-          ["Reaguji na změny", "Když se změní vaše situace, trh nebo podmínky, řešíme, co upravit."],
-          ["Myslím dlouhodobě", "Hledám řešení, která dávají smysl nejen dnes, ale i za několik let."],
-          ["Jsem tu pro vás", "Nejen při podpisu. Jsem dostupný i ve chvíli, kdy něco potřebujete řešit."],
-        ],
-        claim: "Moje role je držet věci pohromadě — aby finance nebyly starost, ale funkční systém."
       }
     };
 
@@ -600,7 +606,7 @@
         <div class="modalHead">
           <div class="modalIcon">${item.icon}</div>
           <div>
-            <h3>${item.title}</h3>
+            <h4>${item.title}</h4>
             <p class="lead">${item.lead}</p>
           </div>
         </div>
@@ -621,9 +627,7 @@
       btn.addEventListener('click', () => openModal(btn.dataset.modal));
     });
 
-    function closeModal() {
-      backdrop.classList.remove('active');
-    }
+    function closeModal() { backdrop.classList.remove('active'); }
 
     close.addEventListener('click', closeModal);
     backdrop.addEventListener('click', e => {
