@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jakub Trýzna | Interaktivní mapa služeb</title>
+  <style>
+    :root {
+      --blue: #1d6fff;
+      --blue2: #00b8d9;
+      --dark: #07111f;
+      --text: #0b1730;
+      --muted: #60708a;
+      --glass: rgba(255, 255, 255, 0.72);
+      --border: rgba(255, 255, 255, 0.7);
+      --shadow: 0 24px 80px rgba(20, 58, 120, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(29, 111, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 85% 70%, rgba(0, 184, 217, 0.16), transparent 32%),
+        linear-gradient(135deg, #f7fbff, #ffffff 45%, #eef6ff);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      padding: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stage {
+      position: relative;
+      width: min(1440px, 100%);
+      min-height: 840px;
+      border-radius: 44px;
+      background: rgba(255,255,255,0.62);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,0.85);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 34px;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,0.65), transparent 38%),
+        radial-gradient(circle at 50% 42%, rgba(29, 111, 255, 0.08), transparent 34%);
+      pointer-events: none;
+    }
+
+    header {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo {
+      width: 190px;
+      max-height: 72px;
+      object-fit: contain;
+    }
+
+    .contact {
+      text-align: right;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .contact strong { color: var(--text); }
+
+    .headline {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 64px);
+      line-height: 1.04;
+      letter-spacing: -0.06em;
+      font-weight: 850;
+    }
+
+    .headline h1 span {
+      color: var(--blue);
+    }
+
+    .headline p {
+      margin: 18px auto 0;
+      max-width: 720px;
+      font-size: clamp(17px, 1.4vw, 22px);
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .map {
+      position: relative;
+      z-index: 2;
+      height: 610px;
+      margin-top: 28px;
+    }
+
+    .center {
+      position: absolute;
+      left: 50%;
+      top: 49%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 5;
+    }
+
+    .portraitWrap {
+      width: clamp(230px, 23vw, 335px);
+      height: clamp(230px, 23vw, 335px);
+      border-radius: 50%;
+      padding: 9px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(217,235,255,0.55));
+      box-shadow:
+        0 22px 70px rgba(29,111,255,0.22),
+        inset 0 0 0 1px rgba(255,255,255,0.9);
+    }
+
+    .portrait {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      border: 1px solid rgba(255,255,255,0.85);
+    }
+
+    .name {
+      margin-top: 18px;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .role {
+      color: var(--blue);
+      font-weight: 650;
+      margin-top: 4px;
+    }
+
+    .quote {
+      margin: 16px auto 0;
+      width: min(420px, 90vw);
+      padding: 16px 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(210,225,245,0.8);
+      color: var(--text);
+      box-shadow: 0 14px 40px rgba(30, 80, 150, 0.08);
+      font-size: 18px;
+      line-height: 1.42;
+    }
+
+    .quote b { color: var(--blue); }
+
+    svg.lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .line {
+      stroke: rgba(29,111,255,0.38);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 8px rgba(29,111,255,0.35));
+    }
+
+    .node {
+      position: absolute;
+      z-index: 4;
+      width: 230px;
+      min-height: 230px;
+      border: none;
+      padding: 22px;
+      border-radius: 36px;
+      background: var(--glass);
+      backdrop-filter: blur(28px) saturate(1.35);
+      -webkit-backdrop-filter: blur(28px) saturate(1.35);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow:
+        0 22px 60px rgba(20, 70, 150, 0.13),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+      transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+    .node:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow:
+        0 30px 90px rgba(20, 70, 150, 0.22),
+        0 0 0 1px rgba(29,111,255,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.86);
+    }
+
+    .node .icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      background: linear-gradient(145deg, #1d6fff, #00b8d9);
+      color: white;
+      box-shadow: 0 14px 34px rgba(29,111,255,0.28);
+      margin-bottom: 18px;
+    }
+
+    .node h2 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+    }
+
+    .node p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 15px;
+    }
+
+    .node small {
+      display: inline-flex;
+      margin-top: 18px;
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .n1 { left: 2%; top: 6%; }
+    .n2 { right: 2%; top: 6%; }
+    .n3 { left: 2%; bottom: 5%; }
+    .n4 { right: 2%; bottom: 5%; }
+    .n5 { left: 50%; bottom: -2%; transform: translateX(-50%); }
+    .n5:hover { transform: translateX(-50%) translateY(-8px) scale(1.02); }
+
+    .modalBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(7,17,31,0.38);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      z-index: 50;
+    }
+
+    .modalBackdrop.active { display: flex; }
+
+    .modal {
+      width: min(980px, 96vw);
+      max-height: 88vh;
+      overflow: auto;
+      border-radius: 38px;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(34px) saturate(1.35);
+      -webkit-backdrop-filter: blur(34px) saturate(1.35);
+      border: 1px solid rgba(255,255,255,0.95);
+      box-shadow: 0 40px 120px rgba(0,0,0,0.22);
+      padding: 34px;
+      position: relative;
+      animation: pop .2s ease-out;
+    }
+
+    @keyframes pop {
+      from { transform: translateY(18px) scale(.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .close {
+      position: absolute;
+      right: 24px;
+      top: 24px;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(235,242,252,0.95);
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .modalHead {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: center;
+      padding-right: 54px;
+    }
+
+    .modalIcon {
+      width: 82px;
+      height: 82px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      font-size: 44px;
+      color: white;
+      background: linear-gradient(145deg, #1d6fff, #00b8d9);
+      box-shadow: 0 18px 46px rgba(29,111,255,.25);
+    }
+
+    .modal h3 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      letter-spacing: -0.06em;
+      line-height: 1.02;
+    }
+
+    .modal .lead {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .details {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .detailItem {
+      padding: 18px 18px;
+      border-radius: 22px;
+      background: rgba(247,251,255,0.85);
+      border: 1px solid rgba(210,225,245,0.82);
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .check {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(29,111,255,0.12);
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .detailItem b {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 17px;
+    }
+
+    .detailItem span {
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: 15px;
+    }
+
+    .bottomClaim {
+      margin-top: 26px;
+      padding: 20px 24px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(29,111,255,0.12), rgba(0,184,217,0.08));
+      color: var(--text);
+      font-size: 19px;
+      line-height: 1.45;
+      border: 1px solid rgba(29,111,255,0.12);
+    }
+
+    @media (max-width: 1100px) {
+      .stage { min-height: auto; }
+      .map {
+        height: auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding-top: 28px;
+      }
+      .center, .node {
+        position: relative;
+        inset: auto;
+        transform: none !important;
+        width: 100%;
+        min-height: auto;
+      }
+      .center { order: -1; }
+      svg.lines { display: none; }
+      .portraitWrap { margin: 0 auto; width: 240px; height: 240px; }
+      .details { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; }
+      .contact { text-align: left; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 14px; }
+      .stage { border-radius: 28px; padding: 22px; }
+      .node { border-radius: 28px; }
+      .modal { padding: 24px; border-radius: 28px; }
+      .modalHead { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="stage">
+      <header>
+        <div></div>
+        <div class="contact">
+          <strong>Jakub Trýzna</strong><br />
+          +420 777 764 945 · j.tryzna@fair-life.cz
+        </div>
+      </header>
+
+      <div class="headline">
+        <h1>Klid a jistota <span>ve vašich financích.</span></h1>
+        <p>Zařídím to, co je složité. Hlídám proces, detaily a propojuji správné lidi, abyste se mohli soustředit na to, co je pro vás důležité.</p>
+      </div>
+
+      <section class="map" aria-label="Interaktivní mapa služeb">
+        <svg class="lines" viewBox="0 0 1440 610" preserveAspectRatio="none">
+          <line class="line" x1="720" y1="300" x2="250" y2="135" />
+          <line class="line" x1="720" y1="300" x2="1190" y2="135" />
+          <line class="line" x1="720" y1="300" x2="250" y2="475" />
+          <line class="line" x1="720" y1="300" x2="1190" y2="475" />
+          <line class="line" x1="720" y1="430" x2="720" y2="590" />
+        </svg>
+
+        <div class="center">
+          <div class="portraitWrap">
+            <img src="fotka.jpg" alt="Jakub Trýzna" class="portrait" />
+          </div>
+          <div class="name">Jakub Trýzna</div>
+          <div class="role">Váš finanční specialista</div>
+          <div class="quote">Nejde jen o produkty. <b>Jde o partnerství, na které se můžete spolehnout.</b></div>
+        </div>
+
+        <button class="node n1" data-modal="hypoteky">
+          <div class="icon">🏠</div>
+          <h2>Hypotéky</h2>
+          <p>Řídím celý hypoteční proces od prvního dotazníku až po čerpání.</p>
+          <small>Otevřít detail</small>
+        </button>
+
+        <button class="node n2" data-modal="investice">
+          <div class="icon">📈</div>
+          <h2>Investice</h2>
+          <p>Tvořím dlouhodobou strategii podle cílů, ne podle produktů.</p>
+          <small>Otevřít detail</small>
+        </button>
+
+        <button class="node n3" data-modal="pojisteni">
+          <div class="icon">🛡️</div>
+          <h2>Pojištění</h2>
+          <p>Nastavuji krytí podle reality, ne podle tabulek.</p>
+          <small>Otevřít detail</small>
+        </button>
+
+        <button class="node n4" data-modal="pece">
+          <div class="icon">❤️</div>
+          <h2>Poúrazová péče</h2>
+          <p>Pomáhám i ve chvíli, kdy nastane problém.</p>
+          <small>Otevřít detail</small>
+        </button>
+
+        <button class="node n5" data-modal="servis">
+          <div class="icon">🤝</div>
+          <h2>Servis</h2>
+          <p>Šetřím vám čas, hlídám detaily a propojuji správné lidi.</p>
+          <small>Otevřít detail</small>
+        </button>
+      </section>
+    </section>
+  </main>
+
+  <div class="modalBackdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="close" id="closeModal" aria-label="Zavřít">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      hypoteky: {
+        icon: "🏠",
+        title: "Hypotéky",
+        lead: "Vy řešíte jen klíčové věci. Banku, dokumenty, termíny a návaznosti hlídám za vás.",
+        items: [
+          ["Výběr vhodné banky", "Porovnám možnosti a vyberu banku, kde máte nejvyšší šanci na schválení a dobré podmínky."],
+          ["Podklady a administrativa", "Zajistím dotazník, podklady, odhad nemovitosti i komunikaci s bankou."],
+          ["Koordinace mezi stranami", "Hlídám návaznost kroků mezi bankou, katastrem, odhadcem a klientem."],
+          ["Termíny a podmínky", "Dohlížím na proces až po čerpání, aby vám nic důležitého neuteklo."],
+          ["Úspora času", "Běžně klientům šetřím desítky hodin administrativy a komunikace."],
+          ["Strategické nastavení", "Hypotéku neřeším jen podle sazby, ale podle celkového finančního plánu."],
+        ],
+        claim: "Hypotéka nemusí být chaos. Když víte, co se děje a kdo drží proces, je celý průběh výrazně klidnější."
+      },
+      investice: {
+        icon: "📈",
+        title: "Investice",
+        lead: "Pomáhám penězům pracovat podle vašeho života, cílů a časového horizontu.",
+        items: [
+          ["Strategie podle cílů", "Nastavím plán podle vašich cílů, horizontu, rezervy a tolerance k riziku."],
+          ["Pravidelné i jednorázové investice", "Kombinuji průběžné investování s jednorázovými vklady včetně řešení pro větší kapitál."],
+          ["Budování budoucí renty", "Cílem není jen zhodnotit peníze, ale vytvořit majetek, který může jednou generovat příjem."],
+          ["Diverzifikace a efektivita", "Rozkládám rizika a hlídám, aby investice dávaly smysl jako celek."],
+          ["Průběžný dohled", "Sleduji změny na trhu i ve vašem životě a podle toho strategii upravuji."],
+          ["Srozumitelnost", "Vysvětluji investice lidsky, bez zbytečné finanční omáčky."],
+        ],
+        claim: "Neprodávám investiční produkt. Stavím plán, který má dávat smysl dnes i za mnoho let."
+      },
+      pojisteni: {
+        icon: "🛡️",
+        title: "Pojištění",
+        lead: "Pojištění má pomoct ve chvíli, kdy se něco stane. Proto ho nastavuji podle reálných rizik.",
+        items: [
+          ["Krytí podle reality", "Nastavím pojištění tak, aby krylo to, co je pro vás opravdu důležité."],
+          ["Výpadek příjmů", "Řeším hlavně situace, které mohou ohrozit životní standard rodiny."],
+          ["Kontrola smluv a výluk", "Prověřím stávající smlouvy, výluky i podmínky plnění."],
+          ["Majetek, vozidla, odpovědnost", "Dávám dohromady ochranu domácnosti, nemovitostí, aut i běžných životních situací."],
+          ["Pravidelné revize", "Udržuji nastavení aktuální podle změn ve vašem životě."],
+          ["Pomoc při pojistné události", "Když nastane problém, pomohu s vyřízením a komunikací s pojišťovnou."],
+        ],
+        claim: "Cílem není mít pojistku. Cílem je mít jistotu, že ochrana bude fungovat, až ji budete potřebovat."
+      },
+      pece: {
+        icon: "❤️",
+        title: "Poúrazová péče",
+        lead: "Ve spolupráci s odborníky pomáháme zajistit návaznou péči od vyšetření po rehabilitaci.",
+        items: [
+          ["Rychlejší přístup k lékařům", "Doporučím ověřené specialisty a pomohu s objednáním vyšetření."],
+          ["Orientace po úrazu", "Pomohu vám zorientovat se v tom, co řešit jako první a na koho se obrátit."],
+          ["Propojení na odborníky", "Ve spolupráci s odborníky pomáháme zajistit návaznou péči a rehabilitaci."],
+          ["Fyzioterapie a návrat do běžného života", "Propojujeme vás s podporou, která pomáhá rychlejšímu zotavení."],
+          ["Administrativa a pojišťovna", "Pomohu s dokumenty a vyřízením pojistného plnění."],
+          ["Nejste na to sami", "Když nastane problém, máte někoho, kdo vám pomůže držet další kroky pohromadě."],
+        ],
+        claim: "Tohle není náhrada lékařské péče. Je to praktická pomoc, abyste v náročné situaci nebyli na všechno sami."
+      },
+      servis: {
+        icon: "🤝",
+        title: "Servis a dlouhodobá péče",
+        lead: "Finance nejsou jednorázové rozhodnutí. Hlídám, aby nastavení dávalo smysl i v čase.",
+        items: [
+          ["Šetřím vám čas", "Přebírám komunikaci, administrativu a návaznosti, které klienti obvykle řeší sami."],
+          ["Hlídám detaily", "Dohlížím na termíny, podmínky, dokumenty a návaznost jednotlivých kroků."],
+          ["Propojuji správné lidi", "Spolupracuji s odborníky, kteří odvádí špičkovou práci ve své oblasti."],
+          ["Reaguji na změny", "Když se změní vaše situace, trh nebo podmínky, řešíme, co upravit."],
+          ["Myslím dlouhodobě", "Hledám řešení, která dávají smysl nejen dnes, ale i za několik let."],
+          ["Jsem tu pro vás", "Nejen při podpisu. Jsem dostupný i ve chvíli, kdy něco potřebujete řešit."],
+        ],
+        claim: "Moje role je držet věci pohromadě — aby finance nebyly starost, ale funkční systém."
+      }
+    };
+
+    const backdrop = document.getElementById('modalBackdrop');
+    const content = document.getElementById('modalContent');
+    const close = document.getElementById('closeModal');
+
+    function openModal(key) {
+      const item = data[key];
+      content.innerHTML = `
+        <div class="modalHead">
+          <div class="modalIcon">${item.icon}</div>
+          <div>
+            <h3>${item.title}</h3>
+            <p class="lead">${item.lead}</p>
+          </div>
+        </div>
+        <div class="details">
+          ${item.items.map(([title, text]) => `
+            <div class="detailItem">
+              <div class="check">✓</div>
+              <div><b>${title}</b><span>${text}</span></div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="bottomClaim">${item.claim}</div>
+      `;
+      backdrop.classList.add('active');
+    }
+
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.modal));
+    });
+
+    function closeModal() {
+      backdrop.classList.remove('active');
+    }
+
+    close.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', e => {
+      if (e.target === backdrop) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>
