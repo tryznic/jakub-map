@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jakub Trýzna | Interaktivní mapa služeb</title>
+  <style>
+    :root {
+      --blue: #075ee8;
+      --green: #176b35;
+      --purple: #4a259b;
+      --teal: #007d8f;
+      --navy: #061633;
+      --text: #07142f;
+      --muted: #55657f;
+      --soft: #f6f8fc;
+      --border: #e4ecf7;
+      --shadow: 0 20px 60px rgba(12, 38, 89, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% 28%, rgba(7,94,232,.08), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .wrap {
+      width: min(1540px, 100%);
+      height: calc(100vh - 20px);
+      position: relative;
+      padding: 10px 16px 12px;
+      overflow: hidden;
+    }
+
+    .headline {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .headline h1 {
+      margin: 0;
+      font-size: clamp(28px, 3.4vw, 50px);
+      line-height: .96;
+      letter-spacing: -0.055em;
+      font-weight: 900;
+    }
+
+    .headline h1 span { color: var(--blue); }
+
+    .headline p {
+      margin: 8px auto 0;
+      max-width: 720px;
+      font-size: clamp(14px, 1vw, 17px);
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .map {
+      position: relative;
+      min-height: 0;
+      height: calc(100vh - 245px);
+      display: grid;
+      grid-template-columns: 340px 1fr 340px;
+      grid-template-rows: 1fr 1fr;
+      gap: 16px 44px;
+      align-items: center;
+    }
+
+    svg.lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .line {
+      stroke: rgba(7, 94, 232, .38);
+      stroke-width: 2.2;
+    }
+
+    .centerArea {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      text-align: center;
+      width: 285px;
+    }
+
+    .portraitBox {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+      border-radius: 50%;
+      padding: 7px;
+      background: #ffffff;
+      box-shadow: 0 16px 48px rgba(7,94,232,.13);
+      border: 1px solid var(--border);
+    }
+
+    .portraitBox img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .personCard {
+      width: 270px;
+      margin: 8px auto 0;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 21px;
+      padding: 15px 18px 17px;
+      box-shadow: var(--shadow);
+    }
+
+    .personCard h2 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+    }
+
+    .personCard .role {
+      margin-top: 5px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .personCard .divider {
+      width: 80%;
+      height: 1px;
+      background: var(--border);
+      margin: 10px auto;
+    }
+
+    .personCard p {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .personCard b { color: var(--blue); }
+
+    .serviceCard {
+      position: relative;
+      z-index: 3;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 23px;
+      padding: 17px;
+      min-height: 215px;
+      cursor: pointer;
+      transition: transform .22s ease, box-shadow .22s ease;
+      text-align: left;
+      width: 100%;
+      color: var(--text);
+    }
+
+    .serviceCard:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 26px 80px rgba(12, 38, 89, 0.14);
+    }
+
+    .serviceCard.topLeft { grid-column: 1; grid-row: 1; }
+    .serviceCard.bottomLeft { grid-column: 1; grid-row: 2; }
+    .serviceCard.topRight { grid-column: 3; grid-row: 1; }
+    .serviceCard.bottomRight { grid-column: 3; grid-row: 2; }
+
+    .cardHead {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 11px;
+    }
+
+    .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      box-shadow: 0 12px 30px rgba(7,94,232,.14);
+    }
+
+    .icon svg,
+    .modalIcon svg {
+      width: 28px;
+      height: 28px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .hypoColor .icon { background: var(--blue); }
+    .investColor .icon { background: var(--green); }
+    .pojColor .icon { background: var(--purple); }
+    .peceColor .icon { background: var(--teal); }
+
+    .serviceCard h3 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    .serviceCard .sub {
+      margin: 4px 0 0;
+      line-height: 1.28;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .hypoColor .sub, .hypoColor .openDetail {
+      margin-top: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 11.5px;
+    }
+
+    .simpleItem {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 8px;
+      align-items: start;
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.28;
+      font-weight: 650;
+    }
+
+    .dotCheck {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .hypoColor .dotCheck { color: var(--blue); }
+    .investColor .dotCheck { color: var(--green); }
+    .pojColor .dotCheck { color: var(--purple); }
+    .peceColor .dotCheck { color: var(--teal); }
+
+    .openDetail {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      font-size: 12.5px;
+    }
+
+    .openDetail::after {
+      content: "›";
+      font-size: 23px;
+      line-height: 0;
+    }
+
+    .bottomStrip {
+      margin: 2px auto 0;
+      max-width: 1120px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 20px;
+      padding: 10px 180px 10px 18px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      position: relative;
+      z-index: 4;
+    }
+
+    .stripItem {
+      text-align: center;
+      padding: 0 8px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stripItem:last-child { border-right: none; }
+
+    .stripIcon {
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 5px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .stripItem b {
+      display: block;
+      font-size: 12.5px;
+      margin-bottom: 2px;
+    }
+
+    .stripItem span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.22;
+    }
+
+    .contact {
+      position: absolute;
+      right: 18px;
+      bottom: 10px;
+      z-index: 10;
+      text-align: right;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 8px 12px;
+      box-shadow: 0 12px 36px rgba(12, 38, 89, 0.08);
+    }
+
+    .contact b { color: var(--text); }
+
+    .modalBackdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 100;
+      background: rgba(6, 22, 51, .38);
+      backdrop-filter: blur(8px);
+    }
+
+    .modalBackdrop.active { display: flex; }
+
+    .modal {
+      width: min(1120px, 96vw);
+      max-height: 92vh;
+      overflow: auto;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      box-shadow: 0 34px 120px rgba(0,0,0,.24);
+      padding: 30px;
+      position: relative;
+      animation: pop .18s ease-out;
+    }
+
+    @keyframes pop {
+      from { transform: translateY(16px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 50%;
+      background: var(--soft);
+      color: var(--text);
+      font-size: 27px;
+      cursor: pointer;
+    }
+
+    .modalHead {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding-right: 54px;
+      margin-bottom: 24px;
+    }
+
+    .modalIcon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: white;
+    }
+
+    .modal h4 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+      font-weight: 900;
+    }
+
+    .modal .lead {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .detailGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .detailItem {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fbfdff;
+    }
+
+    .detailItem b {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 16px;
+    }
+
+    .detailItem span {
+      color: var(--muted);
+      line-height: 1.38;
+      font-size: 14.5px;
+    }
+
+    .processBox, .tableBox {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: #fbfdff;
+    }
+
+    .sectionTitle {
+      margin: 0 0 16px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+    }
+
+    .stepNumber {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      margin: 0 auto 8px;
+    }
+
+    .stepIcon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 10px;
+      background: #eef7f0;
+      font-size: 26px;
+    }
+
+    .step b {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .step span {
+      display: block;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.32;
+    }
+
+    .timeTable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .timeTable th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeTable td {
+      padding: 11px 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .timeTable td:first-child {
+      color: var(--text);
+      font-weight: 750;
+    }
+
+    .timeTable td:last-child {
+      font-weight: 900;
+    }
+
+    .timeTable tr:last-child td {
+      border-bottom: none;
+      font-size: 17px;
+      background: #f1f6ff;
+      border-radius: 12px;
+    }
+
+    .claim {
+      margin-top: 16px;
+      padding: 17px 20px;
+      border-radius: 20px;
+      line-height: 1.45;
+      font-size: 17px;
+      border: 1px solid var(--border);
+    }
+
+    .hypoTheme .modalIcon, .hypoTheme .stepNumber { background: var(--blue); }
+    .hypoTheme .tick, .hypoTheme .timeTable td:last-child, .hypoTheme .claim b { color: var(--blue); }
+    .hypoTheme .claim { background: #f3f7ff; }
+
+    .investTheme .modalIcon, .investTheme .stepNumber { background: var(--green); }
+    .investTheme .tick, .investTheme .claim b { color: var(--green); }
+    .investTheme .claim { background: #f3faf4; }
+
+    .pojTheme .modalIcon, .pojTheme .stepNumber { background: var(--purple); }
+    .pojTheme .tick, .pojTheme .claim b { color: var(--purple); }
+    .pojTheme .claim { background: #f7f3ff; }
+
+    .peceTheme .modalIcon, .peceTheme .stepNumber { background: var(--teal); }
+    .peceTheme .tick, .peceTheme .claim b { color: var(--teal); }
+    .peceTheme .claim { background: #f1fbfc; }
+
+    @media (max-width: 1160px) {
+      .page { align-items: flex-start; overflow: auto; }
+      .wrap { height: auto; overflow: visible; }
+      .map {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+        min-height: auto;
+        gap: 18px;
+      }
+      svg.lines { display: none; }
+      .centerArea {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        order: -1;
+      }
+      .serviceCard.topLeft,
+      .serviceCard.bottomLeft,
+      .serviceCard.topRight,
+      .serviceCard.bottomRight {
+        grid-column: auto;
+        grid-row: auto;
+      }
+      .portraitBox { width: 240px; height: 240px; }
+      .personCard { width: min(360px, 100%); }
+      .bottomStrip { grid-template-columns: 1fr; }
+      .stripItem { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+      .stripItem:last-child { border-bottom: none; }
+      .detailGrid, .timeline { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 10px; }
+      .wrap { padding: 8px 4px 18px; }
+      .serviceCard { min-height: auto; }
+      .cardHead, .modalHead { grid-template-columns: 1fr; }
+      .modal { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="wrap">
+      <div class="headline">
+        <h1>Můj cíl je jednoduchý:<br><span>klid a jistota</span><br>ve vašich financích.</h1>
+        <p>Řídím proces, dívám se na celek a propojuji správné lidi, abyste se mohli soustředit na to, co je pro vás důležité.</p>
+      </div>
+
+      <section class="map">
+        <svg class="lines" viewBox="0 0 1560 620" preserveAspectRatio="none">
+          <line class="line" x1="780" y1="280" x2="390" y2="205" />
+          <line class="line" x1="780" y1="280" x2="1170" y2="205" />
+          <line class="line" x1="780" y1="355" x2="390" y2="455" />
+          <line class="line" x1="780" y1="355" x2="1170" y2="455" />
+        </svg>
+
+        <div class="centerArea">
+          <div class="portraitBox">
+            <img src="fotka.jpg" alt="Jakub Trýzna">
+          </div>
+          <div class="personCard">
+            <h2>Jakub Trýzna</h2>
+            <div class="role">Váš finanční specialista</div>
+            <div class="divider"></div>
+            <p>Nejde jen o produkty. Jde o partnerství, <b>na které se můžete spolehnout.</b></p>
+          </div>
+        </div>
+
+        <button class="serviceCard topLeft hypoColor" data-modal="hypoteky">
+          <div class="cardHead">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></div>
+            <div>
+              <h3>Hypotéky</h3>
+              <div class="sub">Provedu vás celým procesem od A do Z.</div>
+            </div>
+          </div>
+          <div class="simpleList">
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Nové úvěry</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Refinancování a refixace</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Konsolidace</div></div>
+          </div>
+          <span class="openDetail">Zobrazit detail</span>
+        </button>
+
+        <button class="serviceCard topRight investColor" data-modal="investice">
+          <div class="cardHead">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg></div>
+            <div>
+              <h3>Investice</h3>
+              <div class="sub">Tvořím dlouhodobou strategii, ne jen produkty.</div>
+            </div>
+          </div>
+          <div class="simpleList">
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Budování majetku</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Dlouhodobá stabilita</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Neveřejné nabídky a FKI</div></div>
+          </div>
+          <span class="openDetail">Zobrazit detail</span>
+        </button>
+
+        <button class="serviceCard bottomLeft pojColor" data-modal="pojisteni">
+          <div class="cardHead">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-5"/></svg></div>
+            <div>
+              <h3>Pojištění</h3>
+              <div class="sub">Nastavuji ochranu podle reality, ne podle tabulek.</div>
+            </div>
+          </div>
+          <div class="simpleList">
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Zajištění příjmů</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Majetek a vozidla</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Podnikatelská rizika a odpovědnost</div></div>
+          </div>
+          <span class="openDetail">Zobrazit detail</span>
+        </button>
+
+        <button class="serviceCard bottomRight peceColor" data-modal="pece">
+          <div class="cardHead">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/><path d="M8 12h3l1-2 2 4 1-2h2"/></svg></div>
+            <div>
+              <h3>Poúrazová péče</h3>
+              <div class="sub">Komplexní podpora od vyšetření po návrat do sportu.</div>
+            </div>
+          </div>
+          <div class="simpleList">
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Rychlý přístup k odborníkům</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Návazná péče a rehabilitace</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Návrat do sportu</div></div>
+          </div>
+          <span class="openDetail">Zobrazit detail</span>
+        </button>
+      </section>
+
+      <section class="bottomStrip">
+        <div class="stripItem"><div class="stripIcon">◷</div><b>Ušetřím vám čas</b><span>Přebírám komunikaci a administrativu.</span></div>
+        <div class="stripItem"><div class="stripIcon">✓</div><b>Hlídám detaily</b><span>Dohlížím na termíny, podmínky a návaznosti.</span></div>
+        <div class="stripItem"><div class="stripIcon">○</div><b>Propojuji správné lidi</b><span>Spolupracuji s odborníky, kteří odvádí špičkovou práci.</span></div>
+        <div class="stripItem"><div class="stripIcon">↻</div><b>Myslím dlouhodobě</b><span>Hledám řešení, která dávají smysl i za 10 let.</span></div>
+        <div class="stripItem"><div class="stripIcon">…</div><b>Jsem tu pro vás</b><span>Reaguji rychle a jsem dostupný, když je potřeba.</span></div>
+      </section>
+
+      <div class="contact"><b>Jakub Trýzna</b> · +420 777 764 945 · j.tryzna@fair-life.cz</div>
+    </section>
+  </main>
+
+  <div class="modalBackdrop" id="modalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="close" id="closeModal" aria-label="Zavřít">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      hypoteky: {
+        theme: "hypoTheme",
+        icon: `<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg>`,
+        title: "Hypotéky",
+        lead: "Provedu vás celým hypotečním procesem od prvního dotazníku až po čerpání.",
+        items: [
+          ["Nové úvěry", "Pomohu s nastavením hypotéky při koupi, výstavbě nebo rekonstrukci."],
+          ["Refinancování a refixace", "Hlídám podmínky bank a pomáhám hypotéku upravit podle vývoje trhu i vaší situace."],
+          ["Konsolidace", "Pomohu spojit dražší úvěry do přehlednějšího a efektivnějšího řešení."],
+          ["Kompletní podklady a administrativa", "Zajistím dokumenty, odhady, žádost i návaznost kroků."],
+          ["Koordinace mezi stranami", "Komunikuji s bankou, realitkou, katastrem i odhadcem."],
+          ["Termíny a podmínky", "Dohlédnu, aby celý proces proběhl hladce a včas."],
+        ],
+        special: "hypoTime",
+        claim: "Vy řešíte jen klíčové věci — zbytek držím procesně pohromadě."
+      },
+      investice: {
+        theme: "investTheme",
+        icon: `<svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg>`,
+        title: "Investice",
+        lead: "Komplexní správa investic s důrazem na dlouhodobou stabilitu, rozložení rizika a růst.",
+        items: [
+          ["Strategie podle vašich cílů", "Nastavuji investice podle časového horizontu, rezervy, tolerance k riziku a budoucích plánů."],
+          ["Dlouhodobá stabilita", "Investice propojuji s vaším životem, ne jen s aktuální situací na trhu."],
+          ["Pravidelné, jednorázové investice a FKI", "Pomáhám nastavit pravidelné investování, práci s větším kapitálem i vybrané neveřejné nabídky a FKI."],
+          ["Rozložení rizika a stabilita", "Investice rozkládám tak, aby celý plán fungoval dlouhodobě a byl odolný vůči výkyvům trhu."],
+          ["Úpravy v čase", "Strategii průběžně upravuji podle vývoje trhu i změn ve vašem životě."],
+          ["Přehled a srozumitelnost", "Investice vysvětluji jednoduše, srozumitelně a bez zbytečné složitosti."],
+        ],
+        special: "investProcess",
+        claim: "Mým cílem je chránit a rozvíjet váš majetek s rozumem a klidem. <b>S důrazem na stabilitu, snižování rizika a dlouhodobý růst.</b>"
+      },
+      pojisteni: {
+        theme: "pojTheme",
+        icon: `<svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-5"/></svg>`,
+        title: "Pojištění",
+        lead: "Nastavuji ochranu vás, vaší rodiny, majetku i podnikání tak, aby dávala smysl v reálném životě.",
+        items: [
+          ["Zajištění příjmů", "Ochrana při pracovní neschopnosti, úrazu nebo dlouhodobém výpadku příjmů."],
+          ["Majetek a vozidla", "Pojištění domácnosti, nemovitostí, vozidel i běžných situací, které mohou způsobit vysoké náklady."],
+          ["Podnikatelská rizika a odpovědnost", "Ochrana podnikání, profesní odpovědnosti i situací, které mohou ovlivnit vás nebo firmu."],
+          ["Krytí podle reality", "Nastavuji pojištění tak, aby krylo to, co je pro vás opravdu důležité."],
+          ["Kontrola smluv a výluk", "Prověřuji stávající smlouvy, výluky i podmínky plnění."],
+          ["Pomoc při pojistné události", "Když nastane problém, pomohu s komunikací a řešením pojistné události."],
+        ],
+        special: "insuranceValue",
+        claim: "Pojištění nemá být jednorázová smlouva v šuplíku. <b>Hlídám, aby odpovídalo vaší aktuální situaci i možnostem na trhu.</b>"
+      },
+      pece: {
+        theme: "peceTheme",
+        icon: `<svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/><path d="M8 12h3l1-2 2 4 1-2h2"/></svg>`,
+        title: "Poúrazová péče",
+        lead: "Ve spolupráci s odborníky pomáháme zajistit návaznou péči od vyšetření po návrat do sportu.",
+        items: [
+          ["Rychlý přístup k odborníkům", "Spojím vás s ověřenými specialisty a pomohu s objednáním do 72 hodin."],
+          ["Diagnostika", "Pomohu zajistit rychlou a přesnou diagnostiku, například SONO nebo MRI do 3 dnů."],
+          ["Fyzioterapie a rehabilitace", "Pomohu zajistit plán fyzioterapie a odbornou péči pro rychlejší zotavení."],
+          ["Návrat do sportu", "Propojím vás s fyzioterapeuty a trenéry pro bezpečný návrat ke sportu."],
+          ["Administrativa a pojišťovna", "Pomohu s dokumenty a vyřízením pojistného plnění."],
+          ["Nejste na to sami", "Koordinuji další kroky a jsem vám oporou, když to potřebujete."],
+        ],
+        special: "careValue",
+        claim: "Tohle není náhrada lékařské péče. <b>Je to praktická pomoc, abyste v náročné situaci nebyli na všechno sami.</b>"
+      }
+    };
+
+    const backdrop = document.getElementById('modalBackdrop');
+    const content = document.getElementById('modalContent');
+    const close = document.getElementById('closeModal');
+
+    function renderSpecial(type) {
+      if (type === "hypoTime") {
+        return `
+          <div class="tableBox">
+            <h5 class="sectionTitle">Výsledek tohoto procesu pro vás: průměrná časová úspora klienta</h5>
+            <table class="timeTable">
+              <thead><tr><th>Činnost</th><th>Bez nás</th><th>S námi</th></tr></thead>
+              <tbody>
+                <tr><td>Analýza situace a bonity</td><td>1–2 hod</td><td>~0 hod</td></tr>
+                <tr><td>Příprava dokumentů</td><td>3–5 hod</td><td>~1 hod</td></tr>
+                <tr><td>Komunikace s bankou</td><td>5–10 hod</td><td>0 hod</td></tr>
+                <tr><td>Podání na katastr</td><td>2–3 hod</td><td>0 hod</td></tr>
+                <tr><td>Celkem</td><td>~11–20 hod</td><td>~1 hod</td></tr>
+              </tbody>
+            </table>
+          </div>`;
+      }
+      if (type === "investProcess") {
+        return `
+          <div class="processBox">
+            <h5 class="sectionTitle">Jak probíhá investiční spolupráce</h5>
+            <div class="timeline">
+              <div class="step"><div class="stepNumber">1</div><div class="stepIcon">⌕</div><b>Analýza situace</b><span>Zjišťuji cíle, rezervy, horizont a vztah k riziku.</span></div>
+              <div class="step"><div class="stepNumber">2</div><div class="stepIcon">☷</div><b>Nastavení plánu</b><span>Vytvářím investiční plán, který propojuje investice s vaším životem.</span></div>
+              <div class="step"><div class="stepNumber">3</div><div class="stepIcon">◔</div><b>Realizace investic</b><span>Nastavuji vhodnou kombinaci pravidelných, jednorázových, neveřejných nabídek a FKI.</span></div>
+              <div class="step"><div class="stepNumber">4</div><div class="stepIcon">☰</div><b>Úpravy a aktualizace</b><span>Strategii upravuji podle vývoje trhu i změn ve vašem životě.</span></div>
+              <div class="step"><div class="stepNumber">5</div><div class="stepIcon">◇</div><b>Dlouhodobý servis</b><span>Pravidelně vše kontrolujeme, vyhodnocujeme a aktualizujeme.</span></div>
+            </div>
+          </div>`;
+      }
+      if (type === "insuranceValue") {
+        return `
+          <div class="processBox">
+            <h5 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h5>
+            <div class="timeline">
+              <div class="step"><div class="stepNumber">1</div><div class="stepIcon">☑</div><b>Správné nastavení</b><span>Řeším rizika, která mohou opravdu zasáhnout příjem, rodinu nebo podnikání.</span></div>
+              <div class="step"><div class="stepNumber">2</div><div class="stepIcon">⌕</div><b>Kontrola smluv</b><span>Prověřuji výluky, limity, podmínky i návaznost smluv.</span></div>
+              <div class="step"><div class="stepNumber">3</div><div class="stepIcon">↻</div><b>Hlídání produktů</b><span>Sleduji vývoj pojistných produktů a možnosti na trhu.</span></div>
+              <div class="step"><div class="stepNumber">4</div><div class="stepIcon">◷</div><b>Pravidelná aktualizace</b><span>Pojištění upravuji podle změn ve vašem životě, majetku i příjmech.</span></div>
+              <div class="step"><div class="stepNumber">5</div><div class="stepIcon">☎</div><b>Pomoc při události</b><span>Když nastane problém, pomohu s komunikací a řešením.</span></div>
+            </div>
+          </div>`;
+      }
+      if (type === "careValue") {
+        return `
+          <div class="tableBox">
+            <h5 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h5>
+            <table class="timeTable">
+              <thead><tr><th>Bez koordinátora</th><th>Se mnou</th></tr></thead>
+              <tbody>
+                <tr><td>Hledání specialisty trvá dny až týdny</td><td>Spojím vás s odborníkem do 72 hodin</td></tr>
+                <tr><td>Dlouhé čekání na diagnostiku</td><td>Diagnostika, například SONO/MRI, do 3 dnů</td></tr>
+                <tr><td>Nejasný postup a chybějící návaznost</td><td>Návazná péče a fyzioterapie</td></tr>
+                <tr><td>Složitá administrativa a komunikace s pojišťovnou</td><td>Pomoc s dokumenty a pojistným plněním</td></tr>
+                <tr><td>Chaotický návrat bez plánu</td><td>Postupný návrat do sportu pod dohledem odborníků</td></tr>
+              </tbody>
+            </table>
+          </div>`;
+      }
+      return "";
+    }
+
+    function openModal(key) {
+      const item = data[key];
+      content.innerHTML = `
+        <div class="${item.theme}">
+          <div class="modalHead">
+            <div class="modalIcon">${item.icon}</div>
+            <div>
+              <h4>${item.title}</h4>
+              <p class="lead">${item.lead}</p>
+            </div>
+          </div>
+          <div class="detailGrid">
+            ${item.items.map(([title, text]) => `
+              <div class="detailItem">
+                <div class="tick">✓</div>
+                <div><b>${title}</b><span>${text}</span></div>
+              </div>
+            `).join('')}
+          </div>
+          ${renderSpecial(item.special)}
+          <div class="claim">${item.claim}</div>
+        </div>
+      `;
+      backdrop.classList.add('active');
+    }
+
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.modal));
+    });
+
+    function closeModal() { backdrop.classList.remove('active'); }
+    close.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>
