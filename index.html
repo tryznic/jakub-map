@@ -43,7 +43,7 @@
       width: min(1540px, 100%);
       height: calc(100vh - 20px);
       position: relative;
-      padding: 10px 16px 12px;
+      padding: 10px 16px 106px;
       overflow: hidden;
     }
 
@@ -73,7 +73,7 @@
     .map {
       position: relative;
       min-height: 0;
-      height: calc(100vh - 245px);
+      height: calc(100vh - 235px);
       display: grid;
       grid-template-columns: 340px 1fr 340px;
       grid-template-rows: 1fr 1fr;
@@ -298,18 +298,19 @@
     }
 
     .bottomStrip {
-      margin: 2px auto 0;
-      max-width: 1120px;
+      position: absolute;
+      left: 16px;
+      bottom: 12px;
+      width: calc(100% - 340px);
       background: #ffffff;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       border-radius: 20px;
-      padding: 10px 180px 10px 18px;
+      padding: 11px 18px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 10px;
-      position: relative;
-      z-index: 4;
+      z-index: 8;
     }
 
     .stripItem {
@@ -348,21 +349,30 @@
 
     .contact {
       position: absolute;
-      right: 18px;
-      bottom: 10px;
+      right: 16px;
+      bottom: 12px;
+      width: 300px;
+      min-height: 78px;
       z-index: 10;
-      text-align: right;
-      color: var(--muted);
-      font-size: 12.5px;
+      text-align: left;
+      color: #ffffff;
+      font-size: 13px;
       line-height: 1.45;
-      background: rgba(255,255,255,.86);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 8px 12px;
-      box-shadow: 0 12px 36px rgba(12, 38, 89, 0.08);
+      background: var(--navy);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 20px;
+      padding: 13px 16px;
+      box-shadow: 0 16px 46px rgba(6, 22, 51, 0.22);
     }
 
-    .contact b { color: var(--text); }
+    .contact b {
+      color: #d6aa62;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 12px;
+    }
+
+    
 
     .modalBackdrop {
       position: fixed;
@@ -599,7 +609,7 @@
 
     @media (max-width: 1160px) {
       .page { align-items: flex-start; overflow: auto; }
-      .wrap { height: auto; overflow: visible; }
+      .wrap { height: auto; overflow: visible; padding: 8px 4px 18px; }
       .map {
         display: grid;
         grid-template-columns: 1fr;
@@ -626,7 +636,21 @@
       }
       .portraitBox { width: 240px; height: 240px; }
       .personCard { width: min(360px, 100%); }
-      .bottomStrip { grid-template-columns: 1fr; }
+      .bottomStrip {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        width: 100%;
+        grid-template-columns: 1fr;
+        margin-top: 18px;
+      }
+      .contact {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        margin-top: 14px;
+      }
       .stripItem { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
       .stripItem:last-child { border-bottom: none; }
       .detailGrid, .timeline { grid-template-columns: 1fr; }
@@ -742,7 +766,7 @@
         <div class="stripItem"><div class="stripIcon">…</div><b>Jsem tu pro vás</b><span>Reaguji rychle a jsem dostupný, když je potřeba.</span></div>
       </section>
 
-      <div class="contact"><b>Jakub Trýzna</b> · +420 777 764 945 · j.tryzna@fair-life.cz</div>
+      <div class="contact"><b>Kontakt</b><br>Jakub Trýzna<br>+420 777 764 945<br>j.tryzna@fair-life.cz</div>
     </section>
   </main>
 
