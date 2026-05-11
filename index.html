@@ -32,27 +32,30 @@
 
     .page {
       min-height: 100vh;
-      padding: 18px;
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     .wrap {
-      width: min(1580px, 100%);
+      width: min(1540px, 100%);
+      height: calc(100vh - 20px);
       position: relative;
-      padding: 18px 18px 22px;
+      padding: 10px 16px 12px;
+      overflow: hidden;
     }
 
     .headline {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
 
     .headline h1 {
       margin: 0;
-      font-size: clamp(34px, 4.2vw, 64px);
-      line-height: .98;
+      font-size: clamp(28px, 3.4vw, 50px);
+      line-height: .96;
       letter-spacing: -0.055em;
       font-weight: 900;
     }
@@ -60,20 +63,21 @@
     .headline h1 span { color: var(--blue); }
 
     .headline p {
-      margin: 12px auto 0;
-      max-width: 760px;
-      font-size: clamp(16px, 1.2vw, 20px);
-      line-height: 1.45;
+      margin: 8px auto 0;
+      max-width: 720px;
+      font-size: clamp(14px, 1vw, 17px);
+      line-height: 1.35;
       color: var(--muted);
     }
 
     .map {
       position: relative;
-      min-height: 620px;
+      min-height: 0;
+      height: calc(100vh - 245px);
       display: grid;
-      grid-template-columns: 360px 1fr 360px;
+      grid-template-columns: 340px 1fr 340px;
       grid-template-rows: 1fr 1fr;
-      gap: 22px 56px;
+      gap: 16px 44px;
       align-items: center;
     }
 
@@ -94,21 +98,21 @@
     .centerArea {
       position: absolute;
       left: 50%;
-      top: 46%;
+      top: 45%;
       transform: translate(-50%, -50%);
       z-index: 2;
       text-align: center;
-      width: 330px;
+      width: 285px;
     }
 
     .portraitBox {
-      width: 280px;
-      height: 280px;
+      width: 220px;
+      height: 220px;
       margin: 0 auto;
       border-radius: 50%;
-      padding: 9px;
+      padding: 7px;
       background: #ffffff;
-      box-shadow: 0 18px 60px rgba(7,94,232,.14);
+      box-shadow: 0 16px 48px rgba(7,94,232,.13);
       border: 1px solid var(--border);
     }
 
@@ -122,27 +126,27 @@
     }
 
     .personCard {
-      width: 300px;
-      margin: 12px auto 0;
+      width: 270px;
+      margin: 8px auto 0;
       background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 20px 20px 22px;
+      border-radius: 21px;
+      padding: 15px 18px 17px;
       box-shadow: var(--shadow);
     }
 
     .personCard h2 {
       margin: 0;
-      font-size: 30px;
+      font-size: 25px;
       line-height: 1;
       letter-spacing: -0.05em;
       font-weight: 900;
     }
 
     .personCard .role {
-      margin-top: 7px;
+      margin-top: 5px;
       color: var(--blue);
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 800;
     }
 
@@ -150,13 +154,13 @@
       width: 80%;
       height: 1px;
       background: var(--border);
-      margin: 15px auto;
+      margin: 10px auto;
     }
 
     .personCard p {
       margin: 0;
-      font-size: 14.5px;
-      line-height: 1.45;
+      font-size: 12.5px;
+      line-height: 1.35;
       color: var(--muted);
     }
 
@@ -168,9 +172,9 @@
       background: #ffffff;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      border-radius: 28px;
-      padding: 22px;
-      min-height: 265px;
+      border-radius: 23px;
+      padding: 17px;
+      min-height: 215px;
       cursor: pointer;
       transition: transform .22s ease, box-shadow .22s ease;
       text-align: left;
@@ -190,20 +194,20 @@
 
     .cardHead {
       display: grid;
-      grid-template-columns: 62px 1fr;
-      gap: 16px;
+      grid-template-columns: 52px 1fr;
+      gap: 12px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 11px;
     }
 
     .icon {
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
       display: grid;
       place-items: center;
       color: #ffffff;
-      font-size: 29px;
+      font-size: 26px;
       box-shadow: 0 12px 30px rgba(7,94,232,.16);
     }
 
@@ -214,38 +218,38 @@
 
     .serviceCard h3 {
       margin: 0;
-      font-size: 27px;
+      font-size: 23px;
       line-height: 1.05;
       letter-spacing: -0.04em;
       font-weight: 900;
     }
 
     .serviceCard .sub {
-      margin: 6px 0 0;
-      line-height: 1.35;
-      font-size: 15px;
+      margin: 4px 0 0;
+      line-height: 1.28;
+      font-size: 13px;
       font-weight: 750;
     }
 
-    .hypoColor .sub, .hypoColor .openDetail { color: var(--blue); }
-    .investColor .sub, .investColor .openDetail { color: var(--green); }
-    .pojColor .sub, .pojColor .openDetail { color: var(--purple); }
-    .peceColor .sub, .peceColor .openDetail { color: var(--teal); }
-
-    .simpleList {
-      display: grid;
-      gap: 11px;
-      margin-top: 14px;
+    .hypoColor .sub, .hypoColor .openDetail {
+      margin-top: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 11.5px;
     }
 
     .simpleItem {
       display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 10px;
+      grid-template-columns: 20px 1fr;
+      gap: 8px;
       align-items: start;
       color: var(--text);
-      font-size: 15px;
-      line-height: 1.35;
+      font-size: 13.5px;
+      line-height: 1.28;
       font-weight: 650;
     }
 
@@ -284,16 +288,16 @@
     }
 
     .bottomStrip {
-      margin: 0 auto;
-      max-width: 1160px;
+      margin: 2px auto 0;
+      max-width: 1120px;
       background: #ffffff;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
-      border-radius: 24px;
-      padding: 16px 24px;
+      border-radius: 20px;
+      padding: 11px 20px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
+      gap: 10px;
       position: relative;
       z-index: 4;
     }
@@ -307,29 +311,29 @@
     .stripItem:last-child { border-right: none; }
 
     .stripIcon {
-      width: 36px;
-      height: 36px;
-      margin: 0 auto 8px;
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 5px;
       border-radius: 50%;
       border: 1px solid var(--border);
       display: grid;
       place-items: center;
       color: var(--blue);
       font-weight: 900;
-      font-size: 17px;
+      font-size: 14px;
     }
 
     .stripItem b {
       display: block;
-      font-size: 14px;
-      margin-bottom: 3px;
+      font-size: 12.5px;
+      margin-bottom: 2px;
     }
 
     .stripItem span {
       display: block;
       color: var(--muted);
-      font-size: 12.5px;
-      line-height: 1.28;
+      font-size: 11px;
+      line-height: 1.22;
     }
 
     .contact {
@@ -577,11 +581,13 @@
     .peceTheme .claim { background: #f1fbfc; }
 
     @media (max-width: 1160px) {
-      .page { align-items: flex-start; }
+      .page { align-items: flex-start; overflow: auto; }
+      .wrap { height: auto; overflow: visible; }
       .map {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: auto;
+        height: auto;
         min-height: auto;
         gap: 18px;
       }
@@ -664,7 +670,7 @@
 
         <button class="serviceCard topRight investColor" data-modal="investice">
           <div class="cardHead">
-            <div class="icon">↗</div>
+            <div class="icon">⌁</div>
             <div>
               <h3>Investice</h3>
               <div class="sub">Tvořím dlouhodobou strategii, ne jen produkty.</div>
@@ -673,14 +679,14 @@
           <div class="simpleList">
             <div class="simpleItem"><div class="dotCheck">✓</div><div>Budování majetku</div></div>
             <div class="simpleItem"><div class="dotCheck">✓</div><div>Dlouhodobá stabilita</div></div>
-            <div class="simpleItem"><div class="dotCheck">✓</div><div>Pravidelné i jednorázové investice</div></div>
+            <div class="simpleItem"><div class="dotCheck">✓</div><div>Neveřejné nabídky a FKI</div></div>
           </div>
           <span class="openDetail">Zobrazit detail</span>
         </button>
 
         <button class="serviceCard bottomLeft pojColor" data-modal="pojisteni">
           <div class="cardHead">
-            <div class="icon">◇</div>
+            <div class="icon">◈</div>
             <div>
               <h3>Pojištění</h3>
               <div class="sub">Nastavuji ochranu podle reality, ne podle tabulek.</div>
@@ -696,7 +702,7 @@
 
         <button class="serviceCard bottomRight peceColor" data-modal="pece">
           <div class="cardHead">
-            <div class="icon">♡</div>
+            <div class="icon">✚</div>
             <div>
               <h3>Poúrazová péče</h3>
               <div class="sub">Komplexní podpora od vyšetření po návrat do sportu.</div>
@@ -756,7 +762,7 @@
         items: [
           ["Strategie podle vašich cílů", "Nastavuji investice podle časového horizontu, rezervy, tolerance k riziku a budoucích plánů."],
           ["Dlouhodobá stabilita", "Investice propojuji s vaším životem, ne jen s aktuální situací na trhu."],
-          ["Pravidelné i jednorázové investice", "Pomáhám nastavit pravidelné investování, práci s větším kapitálem i vybrané FKI."],
+          ["Pravidelné, jednorázové investice a FKI", "Pomáhám nastavit pravidelné investování, práci s větším kapitálem i vybrané neveřejné nabídky a FKI."],
           ["Rozložení rizika a stabilita", "Investice rozkládám tak, aby celý plán fungoval dlouhodobě a byl odolný vůči výkyvům trhu."],
           ["Úpravy v čase", "Strategii průběžně upravuji podle vývoje trhu i změn ve vašem životě."],
           ["Přehled a srozumitelnost", "Investice vysvětluji jednoduše, srozumitelně a bez zbytečné složitosti."],
@@ -826,7 +832,7 @@
             <div class="timeline">
               <div class="step"><div class="stepNumber">1</div><div class="stepIcon">⌕</div><b>Analýza situace</b><span>Zjišťuji cíle, rezervy, horizont a vztah k riziku.</span></div>
               <div class="step"><div class="stepNumber">2</div><div class="stepIcon">☷</div><b>Nastavení plánu</b><span>Vytvářím investiční plán, který propojuje investice s vaším životem.</span></div>
-              <div class="step"><div class="stepNumber">3</div><div class="stepIcon">◔</div><b>Realizace investic</b><span>Nastavuji vhodnou kombinaci pravidelných, jednorázových i vybraných FKI.</span></div>
+              <div class="step"><div class="stepNumber">3</div><div class="stepIcon">◔</div><b>Realizace investic</b><span>Nastavuji vhodnou kombinaci pravidelných, jednorázových, neveřejných nabídek a FKI.</span></div>
               <div class="step"><div class="stepNumber">4</div><div class="stepIcon">☰</div><b>Úpravy a aktualizace</b><span>Strategii upravuji podle vývoje trhu i změn ve vašem životě.</span></div>
               <div class="step"><div class="stepNumber">5</div><div class="stepIcon">◇</div><b>Dlouhodobý servis</b><span>Pravidelně vše kontrolujeme, vyhodnocujeme a aktualizujeme.</span></div>
             </div>
