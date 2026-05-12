@@ -664,6 +664,19 @@
       .cardHead, .modalHead { grid-template-columns: 1fr; }
       .modal { padding: 22px; }
     }
+    .portraitBox,
+.stripItem {
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.portraitBox:hover {
+  transform: scale(1.04);
+  box-shadow: 0 24px 80px rgba(7,94,232,.18);
+}
+
+.stripItem:hover {
+  transform: translateY(-4px) scale(1.02);
+}
   </style>
 </head>
 <body>
