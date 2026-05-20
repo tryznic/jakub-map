@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jakub Trýzna | Schůzková mapa spolupráce</title>
+  <style>
+    :root {
+      --navy: #071633;
+      --blue: #075ee8;
+      --green: #176b35;
+      --purple: #4a259b;
+      --teal: #007d8f;
+      --gold: #c99a4b;
+      --text: #07142f;
+      --muted: #5d6b82;
+      --soft: #f6f8fc;
+      --border: #e4ecf7;
+      --shadow: 0 22px 70px rgba(12, 38, 89, .10);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% 16%, rgba(7, 94, 232, .09), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+    }
+
+    .page {
+      width: min(1500px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-weight: 900;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(40px, 5vw, 78px);
+      line-height: .96;
+      letter-spacing: -.055em;
+      font-weight: 950;
+    }
+
+    .hero h1 span { color: var(--blue); }
+
+    .hero p {
+      margin: 16px auto 0;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: clamp(17px, 1.35vw, 22px);
+      line-height: 1.48;
+    }
+
+    .tabs {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: rgba(246, 249, 255, .84);
+      backdrop-filter: blur(16px);
+      padding: 12px 0;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.86);
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      box-shadow: 0 14px 38px rgba(12, 38, 89, .06);
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(12, 38, 89, .10);
+    }
+
+    .tabIcon {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      color: white;
+      flex: none;
+    }
+
+    .tabIcon svg,
+    .sectionIcon svg,
+    .stepIcon svg,
+    .backIcon svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tab b {
+      display: block;
+      font-size: 16px;
+      letter-spacing: -.02em;
+    }
+
+    .tab span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.25;
+    }
+
+    .blue { --accent: var(--blue); --accentSoft: #edf4ff; }
+    .green { --accent: var(--green); --accentSoft: #eef8f0; }
+    .purple { --accent: var(--purple); --accentSoft: #f4efff; }
+    .teal { --accent: var(--teal); --accentSoft: #effbfc; }
+
+    .blue .tabIcon, .blue .sectionIcon, .blue .stepNumber { background: var(--blue); }
+    .green .tabIcon, .green .sectionIcon, .green .stepNumber { background: var(--green); }
+    .purple .tabIcon, .purple .sectionIcon, .purple .stepNumber { background: var(--purple); }
+    .teal .tabIcon, .teal .sectionIcon, .teal .stepNumber { background: var(--teal); }
+
+    .segment {
+      margin-top: 26px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 34px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .segmentHeader {
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 30px;
+      padding: 34px 36px 0;
+      align-items: start;
+    }
+
+    .titleRow {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .sectionIcon {
+      width: 66px;
+      height: 66px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      box-shadow: 0 18px 44px rgba(12, 38, 89, .12);
+      flex: none;
+    }
+
+    .sectionIcon svg { width: 34px; height: 34px; }
+
+    .segment h2 {
+      margin: 0;
+      font-size: clamp(36px, 4vw, 58px);
+      line-height: 1;
+      letter-spacing: -.055em;
+      font-weight: 950;
+    }
+
+    .segment h2 span { color: var(--accent); }
+
+    .segmentLead {
+      margin: 14px 0 0 84px;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.48;
+    }
+
+    .visual {
+      min-height: 225px;
+      border-radius: 28px 28px 0 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--accentSoft);
+    }
+
+    .visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.55) 45%, rgba(255,255,255,.05) 100%),
+        var(--bg);
+      background-size: cover;
+      background-position: center;
+      filter: saturate(.96);
+    }
+
+    .visualTag {
+      position: absolute;
+      left: 22px;
+      bottom: 22px;
+      background: rgba(255,255,255,.82);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: 18px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-weight: 850;
+      box-shadow: 0 18px 42px rgba(12,38,89,.12);
+    }
+
+    .mapArea {
+      position: relative;
+      padding: 42px 32px 36px;
+    }
+
+    .path {
+      position: absolute;
+      left: 55px;
+      right: 55px;
+      top: 92px;
+      height: 170px;
+      pointer-events: none;
+    }
+
+    .path svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .path path {
+      stroke: var(--accent);
+      stroke-width: 2.2;
+      stroke-dasharray: 7 9;
+      fill: none;
+      opacity: .52;
+    }
+
+    .steps {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .step {
+      position: relative;
+      min-height: 250px;
+      padding-top: var(--offset);
+    }
+
+    .stepBubble {
+      display: grid;
+      grid-template-columns: 62px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .stepIconWrap {
+      position: relative;
+      width: 62px;
+      height: 62px;
+    }
+
+    .stepIcon {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      background: var(--accentSoft);
+      border: 1px solid rgba(7,20,47,.08);
+      box-shadow: 0 16px 40px rgba(12, 38, 89, .08);
+    }
+
+    .stepIcon svg { width: 29px; height: 29px; }
+
+    .stepNumber {
+      position: absolute;
+      right: -7px;
+      top: -9px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 10px 28px rgba(12, 38, 89, .14);
+    }
+
+    .step h3 {
+      margin: 6px 0 6px;
+      font-size: 17px;
+      line-height: 1.15;
+      letter-spacing: -.025em;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .segmentFooter {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding: 20px 32px 28px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .valueText {
+      font-size: 18px;
+      line-height: 1.45;
+      color: var(--text);
+    }
+
+    .valueText b { color: var(--accent); }
+
+    .productButton {
+      border: none;
+      border-radius: 16px;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 14px 18px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 14px 38px rgba(12,38,89,.16);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+
+    .productButton:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 48px rgba(12,38,89,.20);
+    }
+
+    details.products {
+      margin: 0 32px 30px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    details.products summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 20px 22px;
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    details.products summary::-webkit-details-marker { display: none; }
+
+    .productGrid {
+      border-top: 1px solid var(--border);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .productCard {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fbfdff;
+    }
+
+    .productCard b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .productCard span {
+      color: var(--muted);
+      line-height: 1.38;
+      font-size: 13.5px;
+    }
+
+    .contact {
+      margin: 28px auto 0;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .contact b { color: var(--text); }
+
+    @media (max-width: 1100px) {
+      .tabs { grid-template-columns: repeat(2, 1fr); }
+      .segmentHeader { grid-template-columns: 1fr; }
+      .visual { min-height: 180px; }
+      .steps { grid-template-columns: 1fr; }
+      .step { min-height: auto; padding-top: 0 !important; }
+      .path { display: none; }
+      .productGrid { grid-template-columns: 1fr; }
+      .segmentFooter { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .page { width: min(100% - 20px, 1500px); padding-top: 20px; }
+      .tabs { grid-template-columns: 1fr; position: relative; }
+      .segmentHeader, .mapArea, .segmentFooter { padding-left: 20px; padding-right: 20px; }
+      .segmentLead { margin-left: 0; }
+      .titleRow { align-items: flex-start; }
+      .sectionIcon { width: 54px; height: 54px; border-radius: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">Váš finanční specialista</div>
+      <h1>Můj cíl je jednoduchý:<br><span>klid a jistota</span><br>ve vašich financích.</h1>
+      <p>Řídím proces, dívám se na celek a propojuji správné lidi, abyste se mohli soustředit na to, co je pro vás důležité.</p>
+
+      <div style="margin:34px auto 0; width:170px; height:170px; border-radius:50%; overflow:hidden; border:6px solid rgba(255,255,255,.95); box-shadow:0 26px 60px rgba(12,38,89,.16);">
+        <img src="fotka.jpg" alt="Jakub Trýzna" style="width:100%;height:100%;object-fit:cover;">
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Navigace segmentů">
+      <a class="tab blue" href="#hypoteky"><div class="tabIcon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></div><div><b>Hypotéky</b><span>od záměru po čerpání</span></div></a>
+      <a class="tab green" href="#investice"><div class="tabIcon"><svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg></div><div><b>Investice</b><span>plán, riziko, správa</span></div></a>
+      <a class="tab purple" href="#pojisteni"><div class="tabIcon"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-5"/></svg></div><div><b>Pojištění</b><span>ochrana podle reality</span></div></a>
+      <a class="tab teal" href="#pece"><div class="tabIcon"><svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/><path d="M8 12h3l1-2 2 4 1-2h2"/></svg></div><div><b>Poúrazová péče</b><span>od vyšetření po návrat</span></div></a>
+    </nav>
+
+    <section id="hypoteky" class="segment blue">
+      <div class="segmentHeader">
+        <div>
+          <div class="titleRow"><div class="sectionIcon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></div><h2><span>Hypotéky</span></h2></div>
+          <p class="segmentLead">Provedu vás procesem od první konzultace až po čerpání. Vy řešíte hlavní rozhodnutí, já držím návaznosti, komunikaci a podmínky.</p>
+        </div>
+        <div class="visual" style="--bg: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80');"><div class="visualTag">Cíl: klidné financování bydlení</div></div>
+      </div>
+      <div class="mapArea">
+        <div class="path"><svg viewBox="0 0 1000 180" preserveAspectRatio="none"><path d="M20 95 C 135 10, 240 10, 315 92 S 485 180, 560 92 S 720 10, 815 94 S 945 170, 985 85"/></svg></div>
+        <div class="steps">
+          <div class="step" style="--offset: 60px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8h2M20 7v2"/></svg></div><div class="stepNumber">1</div></div><div><h3>Úvodní setkání</h3><p>Poznám vaši situaci, záměr, příjmy, závazky a potřeby.</p></div></div></div>
+          <div class="step" style="--offset: 0px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12c.7.6 1 1.4 1 2h6c0-.6.3-1.4 1-2a7 7 0 0 0-4-12Z"/></svg></div><div class="stepNumber">2</div></div><div><h3>Návrh řešení</h3><p>Vyberu banku a parametry, které dávají smysl pro schválení i dlouhodobě.</p></div></div></div>
+          <div class="step" style="--offset: 86px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/></svg></div><div class="stepNumber">3</div></div><div><h3>Komunikace za vás</h3><p>Komunikuji s bankou, realitkou, odhadcem a dalšími stranami.</p></div></div></div>
+          <div class="step" style="--offset: 10px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="stepNumber">4</div></div><div><h3>Podmínky a čerpání</h3><p>Hlídám dokumenty, termíny, katastr, pojistky a podmínky čerpání.</p></div></div></div>
+          <div class="step" style="--offset: 68px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/></svg></div><div class="stepNumber">5</div></div><div><h3>Spolupráce pokračuje</h3><p>Hlídám refixace, změny situace a další příležitosti.</p></div></div></div>
+        </div>
+      </div>
+      <div class="segmentFooter"><div class="valueText"><b>Výsledek:</b> klient ví, co se děje, s kým komunikuje a co je další krok. Proces není chaos, ale řízená cesta.</div><button class="productButton" onclick="toggleProducts('hypoProducts')">Detail produktů</button></div>
+      <details class="products" id="hypoProducts"><summary>Co konkrétně u hypoték řeším</summary><div class="productGrid"><div class="productCard"><b>Nové úvěry</b><span>Financování koupě, výstavby nebo rekonstrukce.</span></div><div class="productCard"><b>Refinancování a refixace</b><span>Hlídání sazeb, podmínek a změn na trhu.</span></div><div class="productCard"><b>Konsolidace</b><span>Sloučení závazků do přehlednějšího řešení.</span></div></div></details>
+    </section>
+
+    <section id="investice" class="segment green">
+      <div class="segmentHeader">
+        <div>
+          <div class="titleRow"><div class="sectionIcon"><svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg></div><h2><span>Investice</span></h2></div>
+          <p class="segmentLead">Investice nevnímám jako jednorázový produkt. Stavím plán, který má dávat smysl podle cílů, rezerv, rizika a životní situace.</p>
+        </div>
+        <div class="visual" style="--bg: url('https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=900&q=80');"><div class="visualTag">Cíl: dlouhodobá stabilita a růst</div></div>
+      </div>
+      <div class="mapArea">
+        <div class="path"><svg viewBox="0 0 1000 180" preserveAspectRatio="none"><path d="M20 95 C 135 10, 240 10, 315 92 S 485 180, 560 92 S 720 10, 815 94 S 945 170, 985 85"/></svg></div>
+        <div class="steps">
+          <div class="step" style="--offset: 60px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M21 12h-3M12 21v-3M3 12h3"/></svg></div><div class="stepNumber">1</div></div><div><h3>Poznání cílů</h3><p>Ujasníme si horizont, rezervy, životní plány a vztah k riziku.</p></div></div></div>
+          <div class="step" style="--offset: 0px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l3-5 4 3 5-8"/></svg></div><div class="stepNumber">2</div></div><div><h3>Návrh strategie</h3><p>Vytvořím investiční plán, který propojuje investice s vaším životem.</p></div></div></div>
+          <div class="step" style="--offset: 86px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/></svg></div><div class="stepNumber">3</div></div><div><h3>Rozložení rizika</h3><p>Nastavím kombinaci aktiv tak, aby plán nestál na jednom scénáři.</p></div></div></div>
+          <div class="step" style="--offset: 10px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg></div><div class="stepNumber">4</div></div><div><h3>Realizace investic</h3><p>Nastavuji pravidelné, jednorázové investice, neveřejné nabídky a FKI.</p></div></div></div>
+          <div class="step" style="--offset: 68px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/></svg></div><div class="stepNumber">5</div></div><div><h3>Úpravy v čase</h3><p>Strategii průběžně kontroluji podle trhu i změn ve vašem životě.</p></div></div></div>
+        </div>
+      </div>
+      <div class="segmentFooter"><div class="valueText"><b>Výsledek:</b> investice nejsou náhodné rozhodnutí, ale systém, který se vyvíjí spolu s vámi.</div><button class="productButton" onclick="toggleProducts('investProducts')">Detail produktů</button></div>
+      <details class="products" id="investProducts"><summary>Co konkrétně u investic řeším</summary><div class="productGrid"><div class="productCard"><b>Pravidelné investice</b><span>Budování majetku postupně a systematicky.</span></div><div class="productCard"><b>Jednorázové investice</b><span>Práce s větším kapitálem a jeho rozložením.</span></div><div class="productCard"><b>Neveřejné nabídky a FKI</b><span>Vybrané možnosti pro vhodné typy investorů.</span></div></div></details>
+    </section>
+
+    <section id="pojisteni" class="segment purple">
+      <div class="segmentHeader">
+        <div>
+          <div class="titleRow"><div class="sectionIcon"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-5"/></svg></div><h2><span>Pojištění</span></h2></div>
+          <p class="segmentLead">Pojištění nastavím podle reality. Nejde o počet smluv, ale o to, aby ochrana fungovala ve chvíli, kdy ji opravdu potřebujete.</p>
+        </div>
+        <div class="visual" style="--bg: url('https://images.unsplash.com/photo-1589666564459-93cdd3ab856a?auto=format&fit=crop&w=900&q=80');"><div class="visualTag">Cíl: ochrana toho důležitého</div></div>
+      </div>
+      <div class="mapArea">
+        <div class="path"><svg viewBox="0 0 1000 180" preserveAspectRatio="none"><path d="M20 95 C 135 10, 240 10, 315 92 S 485 180, 560 92 S 720 10, 815 94 S 945 170, 985 85"/></svg></div>
+        <div class="steps">
+          <div class="step" style="--offset: 60px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="stepNumber">1</div></div><div><h3>Analýza rizik</h3><p>Zmapuji, co by vás, rodinu nebo podnikání mohlo reálně ohrozit.</p></div></div></div>
+          <div class="step" style="--offset: 0px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></div><div class="stepNumber">2</div></div><div><h3>Kontrola smluv</h3><p>Prověřím výluky, limity, podmínky a návaznost stávajících pojistek.</p></div></div></div>
+          <div class="step" style="--offset: 86px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M2 14h4"/><path d="M10 8h4"/><path d="M18 16h4"/></svg></div><div class="stepNumber">3</div></div><div><h3>Nastavení ochrany</h3><p>Spojím kvalitní krytí s rozumnou cenou a přehledností.</p></div></div></div>
+          <div class="step" style="--offset: 10px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/></svg></div><div class="stepNumber">4</div></div><div><h3>Pravidelná aktualizace</h3><p>Hlídám změny ve vašem životě i vývoj produktů na trhu.</p></div></div></div>
+          <div class="step" style="--offset: 68px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/></svg></div><div class="stepNumber">5</div></div><div><h3>Podpora při události</h3><p>Když nastane problém, pomohu s komunikací a řešením.</p></div></div></div>
+        </div>
+      </div>
+      <div class="segmentFooter"><div class="valueText"><b>Výsledek:</b> pojištění není smlouva v šuplíku, ale dlouhodobě hlídaná ochrana, která odpovídá realitě.</div><button class="productButton" onclick="toggleProducts('pojProducts')">Detail produktů</button></div>
+      <details class="products" id="pojProducts"><summary>Co konkrétně u pojištění řeším</summary><div class="productGrid"><div class="productCard"><b>Zajištění příjmů</b><span>Ochrana při nemoci, úrazu nebo dlouhodobém výpadku příjmů.</span></div><div class="productCard"><b>Majetek a vozidla</b><span>Domácnost, nemovitosti, auta a běžné majetkové situace.</span></div><div class="productCard"><b>Podnikatelská rizika a odpovědnost</b><span>Ochrana firmy, profese a situací s možným vysokým dopadem.</span></div></div></details>
+    </section>
+
+    <section id="pece" class="segment teal">
+      <div class="segmentHeader">
+        <div>
+          <div class="titleRow"><div class="sectionIcon"><svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/><path d="M8 12h3l1-2 2 4 1-2h2"/></svg></div><h2><span>Poúrazová péče</span></h2></div>
+          <p class="segmentLead">Když nastane úraz, důležitá je rychlost, návaznost a správní lidé. Pomohu vám projít cestou od prvního kontaktu až po návrat do sportu.</p>
+        </div>
+        <div class="visual" style="--bg: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80');"><div class="visualTag">Cíl: návrat k pohybu a životu</div></div>
+      </div>
+      <div class="mapArea">
+        <div class="path"><svg viewBox="0 0 1000 180" preserveAspectRatio="none"><path d="M20 95 C 135 10, 240 10, 315 92 S 485 180, 560 92 S 720 10, 815 94 S 945 170, 985 85"/></svg></div>
+        <div class="steps">
+          <div class="step" style="--offset: 60px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.4 2.1L8 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 2 2.3z"/></svg></div><div class="stepNumber">1</div></div><div><h3>První kontakt</h3><p>Jsem tu hned, když se něco stane. Probereme situaci a další kroky.</p></div></div></div>
+          <div class="step" style="--offset: 0px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M11 2v6"/><path d="M5 8h12"/><path d="M19 8v4a7 7 0 0 1-14 0V8"/><path d="M12 19v3"/><path d="M8 22h8"/></svg></div><div class="stepNumber">2</div></div><div><h3>Doporučení specialisty</h3><p>Propojím vás s ověřenými lékaři a zařízeními.</p></div></div></div>
+          <div class="step" style="--offset: 86px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M9 3h6l1 3h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l1-3Z"/><path d="M12 10v6M9 13h6"/></svg></div><div class="stepNumber">3</div></div><div><h3>Diagnostika a plán</h3><p>Pomohu zajistit vyšetření a nastavit plán léčby a rehabilitace.</p></div></div></div>
+          <div class="step" style="--offset: 10px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-3 5"/><path d="M12 13l4 2"/><path d="M9 10l3-3 3 3"/></svg></div><div class="stepNumber">4</div></div><div><h3>Rehabilitace</h3><p>Koordinuji návaznou fyzioterapii a další podporu.</p></div></div></div>
+          <div class="step" style="--offset: 68px"><div class="stepBubble"><div class="stepIconWrap"><div class="stepIcon"><svg viewBox="0 0 24 24"><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/><path d="M18 21c0-4-3-7-7-7"/></svg></div><div class="stepNumber">5</div></div><div><h3>Návrat do sportu</h3><p>Propojím vás s odborníky pro bezpečný návrat k zátěži.</p></div></div></div>
+        </div>
+      </div>
+      <div class="segmentFooter"><div class="valueText"><b>Výsledek:</b> v náročné situaci nejste sami. Pomáhám držet návaznost od vyšetření přes rehabilitaci až po návrat do sportu.</div><button class="productButton" onclick="toggleProducts('peceProducts')">Detail služeb</button></div>
+      <details class="products" id="peceProducts"><summary>Co konkrétně u poúrazové péče řeším</summary><div class="productGrid"><div class="productCard"><b>Rychlý přístup k odborníkům</b><span>Pomoc s doporučením a objednáním ke specialistům.</span></div><div class="productCard"><b>Diagnostika a rehabilitace</b><span>Návaznost vyšetření, fyzioterapie a další péče.</span></div><div class="productCard"><b>Návrat do sportu</b><span>Propojení na odborníky pro bezpečný návrat k výkonu.</span></div></div></details>
+    </section>
+
+    <div class="contact"><b>Jakub Trýzna</b> · +420 777 764 945 · j.tryzna@fair-life.cz</div>
+  </main>
+
+  <script>
+    function toggleProducts(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.open = !el.open;
+      if (el.open) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+  </script>
+</body>
+</html>
