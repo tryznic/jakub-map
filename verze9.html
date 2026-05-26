@@ -4,7 +4,78 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jakub Trýzna | Schůzková mapa</title>
+.realityCard,
+.card-reality {
+  display: none !important;
+}
 
+.map.active .centerArea,
+.map.is-linked .centerArea {
+  opacity: 0 !important;
+  filter: blur(12px) !important;
+  pointer-events: none !important;
+}
+
+.map.active .serviceCard,
+.map.is-linked .serviceCard {
+  opacity: 0 !important;
+  filter: blur(8px) saturate(.5) !important;
+  pointer-events: none !important;
+}
+
+.map.active .serviceCard.linked,
+.map.is-linked .serviceCard.linked,
+.map.is-linked .serviceCard.is-active {
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  z-index: 999 !important;
+  box-shadow: 0 42px 120px rgba(3,17,45,.26), 0 0 0 1px rgba(255,255,255,.9) inset !important;
+}
+
+.map.active .lines,
+.map.is-linked .lines {
+  opacity: 0 !important;
+}
+
+.stageGlow,
+.premiumHalo {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 720px;
+  height: 430px;
+  transform: translate(-50%,-50%) scale(.9);
+  border-radius: 999px;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: .55s cubic-bezier(.16,1,.3,1);
+  background: radial-gradient(circle, rgba(255,255,255,.96) 0%, rgba(255,255,255,.86) 38%, rgba(7,94,232,.10) 62%, transparent 74%);
+  box-shadow: 0 44px 130px rgba(3,17,45,.18);
+  backdrop-filter: blur(8px);
+}
+
+.map.active .stageGlow,
+.map.is-linked .premiumHalo {
+  opacity: 1;
+  transform: translate(-50%,-50%) scale(1);
+}
+
+.map.group-hypoteky .card-hypoteky { transform: translate3d(420px,205px,260px) scale(.92) !important; }
+.map.group-hypoteky .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.90) !important; }
+.map.group-hypoteky .card-investice { transform: translate3d(-420px,205px,240px) scale(.90) !important; }
+
+.map.group-pojisteni .card-pojisteni { transform: translate3d(420px,-145px,260px) scale(.92) !important; }
+.map.group-pojisteni .card-investice { transform: translate3d(-420px,205px,240px) scale(.90) !important; }
+.map.group-pojisteni .card-pece { transform: translate3d(-420px,-145px,240px) scale(.90) !important; }
+
+.map.group-investice .card-investice { transform: translate3d(-420px,205px,260px) scale(.92) !important; }
+.map.group-investice .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.90) !important; }
+.map.group-investice .card-pece { transform: translate3d(-420px,-145px,240px) scale(.90) !important; }
+
+.map.group-pece .card-pece { transform: translate3d(-420px,-145px,260px) scale(.94) !important; }
+.map.group-pece .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.94) !important; }
   <style>
     :root{
       --blue:#075ee8;
@@ -1275,6 +1346,55 @@
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape') closeModal();
     });
+    (function(){
+  const map = document.getElementById("serviceMap") || document.querySelector(".map");
+
+  if (!map) return;
+
+  const groups = {
+    hypoteky: ["hypoteky", "pojisteni", "investice"],
+    pojisteni: ["pojisteni", "investice", "pece"],
+    investice: ["investice", "pojisteni", "pece"],
+    pece: ["pece", "pojisteni"]
+  };
+
+  function clearPremiumHover(){
+    map.classList.remove(
+      "active",
+      "is-linked",
+      "group-hypoteky",
+      "group-pojisteni",
+      "group-investice",
+      "group-pece"
+    );
+
+    document.querySelectorAll(".serviceCard").forEach(card => {
+      card.classList.remove("linked", "is-active");
+    });
+  }
+
+  function setPremiumHover(group){
+    clearPremiumHover();
+
+    if (!groups[group]) return;
+
+    map.classList.add("active", "is-linked", `group-${group}`);
+
+    groups[group].forEach(name => {
+      const card = document.querySelector(`.card-${name}`);
+      if (card) {
+        card.classList.add("linked", "is-active");
+      }
+    });
+  }
+
+  document.querySelectorAll("[data-group]").forEach(card => {
+    card.addEventListener("mouseenter", () => setPremiumHover(card.dataset.group));
+    card.addEventListener("focus", () => setPremiumHover(card.dataset.group));
+  });
+
+  map.addEventListener("mouseleave", clearPremiumHover);
+})();
   </script>
 </body>
 </html>
