@@ -523,12 +523,26 @@
       serviceMap.classList.remove("is-active");
     }
 
-    document.querySelectorAll("[data-group]").forEach(btn=>{
-      btn.addEventListener("mouseenter",()=>setGroup(btn.dataset.group));
-      btn.addEventListener("focus",()=>setGroup(btn.dataset.group));
-    });
+   let hoverTimeout;
 
-    serviceMap.addEventListener("mouseleave",clearGroup);
+document.querySelectorAll("[data-group]").forEach(btn=>{
+  btn.addEventListener("mouseenter",()=>{
+    clearTimeout(hoverTimeout);
+    hoverTimeout=setTimeout(()=>{
+      setGroup(btn.dataset.group);
+    },180);
+  });
+  btn.addEventListener("focus",()=>{
+    clearTimeout(hoverTimeout);
+    setGroup(btn.dataset.group);
+  });
+});
+serviceMap.addEventListener("mouseleave",()=>{
+  clearTimeout(hoverTimeout);
+  hoverTimeout=setTimeout(()=>{
+    clearGroup();
+  },120);
+});
 
     function renderSpecial(type){
       if(type==="hypoTime")return`<div class="specialBox"><h4 class="sectionTitle">Výsledek tohoto procesu pro vás: průměrná časová úspora klienta</h4><table class="timeTable"><thead><tr><th>Činnost</th><th>Bez nás</th><th>S námi</th></tr></thead><tbody><tr><td>Analýza situace a bonity</td><td>1–2 hod</td><td>~0 hod</td></tr><tr><td>Příprava dokumentů</td><td>3–5 hod</td><td>~1 hod</td></tr><tr><td>Komunikace s bankou</td><td>5–10 hod</td><td>0 hod</td></tr><tr><td>Podání na katastr</td><td>2–3 hod</td><td>0 hod</td></tr><tr><td>Celkem</td><td>~11–20 hod</td><td>~1 hod</td></tr></tbody></table></div>`;
