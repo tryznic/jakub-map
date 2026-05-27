@@ -1323,10 +1323,12 @@
   pece:["pece","pojisteni"]
 };
 
-    const backdrop=document.getElementById('modalBackdrop');
-    const content=document.getElementById('modalContent');
-    const close=document.getElementById('closeModal');
-    const serviceMap=document.getElementById('serviceMap');
+  const groups={
+  hypoteky:["hypoteky","pojisteni","investice"],
+  pojisteni:["pojisteni","pece","investice"],
+  investice:["investice","pojisteni"],
+  pece:["pece","pojisteni"]
+};
 
     function renderSpecial(type){
       if(type==="hypoTime")return`
