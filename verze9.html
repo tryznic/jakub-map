@@ -4,78 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jakub Trýzna | Schůzková mapa</title>
-.realityCard,
-.card-reality {
-  display: none !important;
-}
 
-.map.active .centerArea,
-.map.is-linked .centerArea {
-  opacity: 0 !important;
-  filter: blur(12px) !important;
-  pointer-events: none !important;
-}
-
-.map.active .serviceCard,
-.map.is-linked .serviceCard {
-  opacity: 0 !important;
-  filter: blur(8px) saturate(.5) !important;
-  pointer-events: none !important;
-}
-
-.map.active .serviceCard.linked,
-.map.is-linked .serviceCard.linked,
-.map.is-linked .serviceCard.is-active {
-  opacity: 1 !important;
-  filter: none !important;
-  pointer-events: auto !important;
-  z-index: 999 !important;
-  box-shadow: 0 42px 120px rgba(3,17,45,.26), 0 0 0 1px rgba(255,255,255,.9) inset !important;
-}
-
-.map.active .lines,
-.map.is-linked .lines {
-  opacity: 0 !important;
-}
-
-.stageGlow,
-.premiumHalo {
-  position: absolute;
-  left: 50%;
-  top: 45%;
-  width: 720px;
-  height: 430px;
-  transform: translate(-50%,-50%) scale(.9);
-  border-radius: 999px;
-  z-index: 20;
-  opacity: 0;
-  pointer-events: none;
-  transition: .55s cubic-bezier(.16,1,.3,1);
-  background: radial-gradient(circle, rgba(255,255,255,.96) 0%, rgba(255,255,255,.86) 38%, rgba(7,94,232,.10) 62%, transparent 74%);
-  box-shadow: 0 44px 130px rgba(3,17,45,.18);
-  backdrop-filter: blur(8px);
-}
-
-.map.active .stageGlow,
-.map.is-linked .premiumHalo {
-  opacity: 1;
-  transform: translate(-50%,-50%) scale(1);
-}
-
-.map.group-hypoteky .card-hypoteky { transform: translate3d(420px,205px,260px) scale(.92) !important; }
-.map.group-hypoteky .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.90) !important; }
-.map.group-hypoteky .card-investice { transform: translate3d(-420px,205px,240px) scale(.90) !important; }
-
-.map.group-pojisteni .card-pojisteni { transform: translate3d(420px,-145px,260px) scale(.92) !important; }
-.map.group-pojisteni .card-investice { transform: translate3d(-420px,205px,240px) scale(.90) !important; }
-.map.group-pojisteni .card-pece { transform: translate3d(-420px,-145px,240px) scale(.90) !important; }
-
-.map.group-investice .card-investice { transform: translate3d(-420px,205px,260px) scale(.92) !important; }
-.map.group-investice .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.90) !important; }
-.map.group-investice .card-pece { transform: translate3d(-420px,-145px,240px) scale(.90) !important; }
-
-.map.group-pece .card-pece { transform: translate3d(-420px,-145px,260px) scale(.94) !important; }
-.map.group-pece .card-pojisteni { transform: translate3d(420px,-145px,240px) scale(.94) !important; }
   <style>
     :root{
       --blue:#075ee8;
@@ -144,7 +73,7 @@
 
     .map{
       position:relative;
-      min-height:720px;
+      min-height:700px;
       display:grid;
       grid-template-columns:360px 1fr 360px;
       grid-template-rows:1fr 1fr;
@@ -161,16 +90,16 @@
       height:100%;
       pointer-events:none;
       z-index:0;
+      transition:opacity .35s ease;
     }
 
     .line{
-      stroke:rgba(7,94,232,.28);
+      stroke:rgba(7,94,232,.34);
       stroke-width:2.2;
-      transition:.45s;
     }
 
-    .map.is-linked .line{
-      opacity:.08;
+    .map.is-active .lines{
+      opacity:0;
     }
 
     .centerArea{
@@ -178,16 +107,20 @@
       left:50%;
       top:45%;
       transform:translate(-50%,-50%);
-      z-index:8;
+      z-index:2;
       text-align:center;
       width:330px;
-      transition:opacity .35s,filter .35s,transform .55s cubic-bezier(.16,1,.3,1);
+      transition:
+        opacity .42s ease,
+        filter .42s ease,
+        transform .62s cubic-bezier(.16,1,.3,1);
     }
 
-    .map.is-linked .centerArea{
-      opacity:.18;
-      filter:blur(1px) saturate(.75);
-      transform:translate(-50%,-50%) scale(.94);
+    .map.is-active .centerArea{
+      opacity:0;
+      filter:blur(16px) saturate(.7);
+      transform:translate(-50%,-50%) scale(.78);
+      pointer-events:none;
     }
 
     .portraitBox{
@@ -257,11 +190,103 @@
 
     .personCard b{color:var(--blue)}
 
+    .premiumStage{
+      position:absolute;
+      left:50%;
+      top:45%;
+      width:760px;
+      height:470px;
+      transform:translate(-50%,-50%) scale(.82);
+      border-radius:999px;
+      z-index:7;
+      opacity:0;
+      pointer-events:none;
+      transition:
+        opacity .45s ease,
+        transform .72s cubic-bezier(.16,1,.3,1);
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(255,255,255,.98) 0%,
+          rgba(255,255,255,.90) 34%,
+          rgba(7,94,232,.08) 58%,
+          transparent 74%);
+      box-shadow:
+        0 44px 130px rgba(3,17,45,.18),
+        inset 0 0 0 1px rgba(255,255,255,.78);
+      backdrop-filter:blur(8px);
+    }
+
+    .premiumStage:before{
+      content:"";
+      position:absolute;
+      inset:42px;
+      border-radius:999px;
+      border:1px solid rgba(7,94,232,.14);
+    }
+
+    .premiumStage:after{
+      content:"";
+      position:absolute;
+      inset:86px;
+      border-radius:999px;
+      border:1px dashed rgba(7,94,232,.13);
+      animation:premiumRotate 18s linear infinite;
+    }
+
+    .map.is-active .premiumStage{
+      opacity:1;
+      transform:translate(-50%,-50%) scale(1);
+    }
+
+    @keyframes premiumRotate{
+      to{rotate:360deg}
+    }
+
+    .premiumNet{
+      position:absolute;
+      left:50%;
+      top:45%;
+      width:620px;
+      height:390px;
+      transform:translate(-50%,-50%);
+      z-index:22;
+      opacity:0;
+      pointer-events:none;
+      transition:.35s;
+    }
+
+    .map.is-active .premiumNet{opacity:1}
+
+    .premiumNet svg{
+      width:100%;
+      height:100%;
+      overflow:visible;
+    }
+
+    .premiumNet path{
+      fill:none;
+      stroke:rgba(7,94,232,.22);
+      stroke-width:1.7;
+      stroke-dasharray:7 9;
+      animation:lineFlow 1.25s linear infinite;
+    }
+
+    .premiumNet circle{
+      fill:#fff;
+      stroke:rgba(7,94,232,.34);
+      stroke-width:1.5;
+      filter:drop-shadow(0 6px 10px rgba(7,94,232,.12));
+    }
+
+    @keyframes lineFlow{
+      to{stroke-dashoffset:-32}
+    }
+
     .serviceCard{
       position:relative;
-      z-index:6;
-      background:rgba(255,255,255,.94);
-      border:1px solid rgba(228,236,247,.96);
+      z-index:3;
+      background:rgba(255,255,255,.96);
+      border:1px solid var(--border);
       box-shadow:var(--shadow);
       border-radius:28px;
       padding:24px;
@@ -270,10 +295,9 @@
       transition:
         transform .72s cubic-bezier(.16,1,.3,1),
         box-shadow .72s cubic-bezier(.16,1,.3,1),
-        filter .42s,
-        opacity .42s,
-        border-color .42s;
-      background-clip:padding-box;
+        opacity .34s ease,
+        filter .34s ease,
+        border-color .34s ease;
       text-align:left;
       width:100%;
       color:var(--text);
@@ -286,13 +310,42 @@
       position:absolute;
       inset:0;
       border-radius:28px;
-      background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.25));
       pointer-events:none;
+      background:
+        linear-gradient(145deg,rgba(255,255,255,.95),rgba(255,255,255,.18));
     }
 
     .serviceCard:hover{
       transform:translateY(-6px);
       box-shadow:0 24px 70px rgba(12,38,89,.12);
+    }
+
+    .map.is-active .serviceCard{
+      opacity:0;
+      filter:blur(12px) saturate(.45);
+      pointer-events:none;
+    }
+
+    .map.is-active .serviceCard.linked{
+      opacity:1;
+      filter:none;
+      pointer-events:auto;
+      z-index:30;
+      border-color:rgba(255,255,255,.92);
+      box-shadow:
+        0 42px 125px rgba(3,17,45,.24),
+        0 0 0 1px rgba(255,255,255,.88) inset;
+    }
+
+    .map.is-active .serviceCard.linked:after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:28px;
+      pointer-events:none;
+      background:
+        linear-gradient(135deg,rgba(255,255,255,.74),transparent 48%,rgba(7,94,232,.16));
+      mix-blend-mode:soft-light;
     }
 
     .topLeft{grid-column:1;grid-row:1}
@@ -320,7 +373,9 @@
     }
 
     .icon svg,
-    .stripIcon svg{
+    .stripIcon svg,
+    .processIcon svg,
+    .modalIcon svg{
       width:28px;
       height:28px;
       stroke:currentColor;
@@ -373,145 +428,48 @@
       line-height:0;
     }
 
-    .premiumHalo{
-      position:absolute;
-      left:50%;
-      top:45%;
-      width:690px;
-      height:430px;
-      transform:translate(-50%,-50%) scale(.82);
-      border-radius:999px;
-      background:
-        radial-gradient(circle at 50% 50%,rgba(255,255,255,.96),rgba(255,255,255,.7) 38%,rgba(7,94,232,.10) 67%,transparent 72%);
-      box-shadow:0 45px 130px rgba(7,26,70,.16);
-      z-index:10;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .42s,transform .72s cubic-bezier(.16,1,.3,1);
-      backdrop-filter:blur(3px);
-    }
-
-    .premiumHalo:after{
-      content:"";
-      position:absolute;
-      inset:42px;
-      border:1px solid rgba(7,94,232,.13);
-      border-radius:999px;
-    }
-
-    .map.is-linked .premiumHalo{
-      opacity:1;
-      transform:translate(-50%,-50%) scale(1);
-    }
-
-    .premiumConnector{
-      position:absolute;
-      left:50%;
-      top:45%;
-      width:560px;
-      height:330px;
-      transform:translate(-50%,-50%);
-      z-index:19;
-      opacity:0;
-      pointer-events:none;
-      transition:.35s;
-    }
-
-    .map.is-linked .premiumConnector{opacity:1}
-
-    .premiumConnector svg{
-      width:100%;
-      height:100%;
-      overflow:visible;
-    }
-
-    .premiumConnector path{
-      fill:none;
-      stroke:rgba(7,94,232,.23);
-      stroke-width:1.8;
-      stroke-dasharray:7 8;
-      animation:dash 1.2s linear infinite;
-    }
-
-    .premiumConnector circle{
-      fill:#fff;
-      stroke:rgba(7,94,232,.26);
-      stroke-width:1.5;
-    }
-
-    @keyframes dash{
-      to{stroke-dashoffset:-30}
-    }
-
-    .map.is-linked .serviceCard{
-      opacity:0;
-      filter:blur(6px) saturate(.55);
-      pointer-events:none;
-    }
-
-    .map.is-linked .serviceCard.is-active{
-      opacity:1;
-      filter:none;
-      pointer-events:auto;
-      z-index:30;
-      border-color:rgba(255,255,255,.86);
-      box-shadow:
-        0 38px 110px rgba(3,17,45,.22),
-        0 0 0 1px rgba(255,255,255,.8) inset;
-    }
-
-    .map.is-linked .serviceCard.is-active:after{
-      content:"";
-      position:absolute;
-      inset:-1px;
-      border-radius:28px;
-      background:linear-gradient(135deg,rgba(255,255,255,.7),transparent 45%,rgba(7,94,232,.18));
-      pointer-events:none;
-      mix-blend-mode:soft-light;
-    }
-
     .map.group-hypoteky .card-hypoteky{
-      transform:translate3d(438px,210px,240px) scale(.92);
+      transform:translate3d(420px,205px,260px) scale(.92);
     }
 
     .map.group-hypoteky .card-pojisteni{
-      transform:translate3d(438px,-150px,230px) scale(.92);
+      transform:translate3d(420px,-145px,235px) scale(.90);
     }
 
     .map.group-hypoteky .card-investice{
-      transform:translate3d(-438px,210px,230px) scale(.92);
+      transform:translate3d(-420px,205px,235px) scale(.90);
     }
 
     .map.group-pojisteni .card-pojisteni{
-      transform:translate3d(438px,-150px,245px) scale(.92);
+      transform:translate3d(420px,-145px,260px) scale(.92);
     }
 
     .map.group-pojisteni .card-investice{
-      transform:translate3d(-438px,210px,230px) scale(.92);
+      transform:translate3d(-420px,205px,235px) scale(.90);
     }
 
     .map.group-pojisteni .card-pece{
-      transform:translate3d(-438px,-150px,230px) scale(.92);
+      transform:translate3d(-420px,-145px,235px) scale(.90);
     }
 
     .map.group-investice .card-investice{
-      transform:translate3d(-438px,210px,245px) scale(.92);
+      transform:translate3d(-420px,205px,260px) scale(.92);
     }
 
     .map.group-investice .card-pojisteni{
-      transform:translate3d(438px,-150px,230px) scale(.92);
+      transform:translate3d(420px,-145px,235px) scale(.90);
     }
 
     .map.group-investice .card-pece{
-      transform:translate3d(-438px,-150px,230px) scale(.92);
+      transform:translate3d(-420px,-145px,235px) scale(.90);
     }
 
     .map.group-pece .card-pece{
-      transform:translate3d(-438px,-150px,245px) scale(.95);
+      transform:translate3d(-420px,-145px,260px) scale(.94);
     }
 
     .map.group-pece .card-pojisteni{
-      transform:translate3d(438px,-150px,230px) scale(.95);
+      transform:translate3d(420px,-145px,235px) scale(.94);
     }
 
     .bottomStrip{
@@ -650,19 +608,172 @@
       background:#fff;
     }
 
-    .processPanel.green{
-      --accent:var(--green);
-      --accentSoft:#eef8f0;
+    .processPanel.green{--accent:var(--green);--accentSoft:#eef8f0}
+    .processPanel.purple{--accent:var(--purple);--accentSoft:#f4efff}
+    .processPanel.teal{--accent:var(--teal);--accentSoft:#edf9fb}
+
+    .processCard{
+      border:1px solid var(--border);
+      border-radius:26px;
+      background:#fff;
+      overflow:hidden;
+      box-shadow:0 18px 50px rgba(12,38,89,.07);
     }
 
-    .processPanel.purple{
-      --accent:var(--purple);
-      --accentSoft:#f4efff;
+    .processTop{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 360px;
+      gap:26px;
+      padding:28px 28px 0;
+      align-items:stretch;
     }
 
-    .processPanel.teal{
-      --accent:var(--gold);
-      --accentSoft:#fbf3e4;
+    .processIntro{
+      display:grid;
+      grid-template-columns:68px 1fr;
+      gap:18px;
+      align-items:start;
+      padding-top:4px;
+    }
+
+    .modalIcon{
+      width:62px;
+      height:62px;
+      border-radius:50%;
+      background:var(--accentSoft);
+      color:var(--accent);
+      border:1px solid var(--border);
+      display:grid;
+      place-items:center;
+      box-shadow:0 14px 34px rgba(12,38,89,.08);
+    }
+
+    .modalIcon svg{width:35px;height:35px}
+
+    .processIntro h2{
+      margin:0;
+      font-size:clamp(30px,4vw,42px);
+      letter-spacing:-.035em;
+      line-height:1;
+      text-transform:uppercase;
+      color:var(--accent);
+      font-weight:950;
+    }
+
+    .processIntro p{
+      margin:12px 0 0;
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.45;
+      max-width:560px;
+      font-weight:650;
+    }
+
+    .processImage{
+      height:210px;
+      border-radius:24px 24px 0 0;
+      background:var(--image);
+      background-size:cover;
+      background-position:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .processImage:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,rgba(255,255,255,.75),rgba(255,255,255,.05));
+    }
+
+    .processFlow{
+      position:relative;
+      padding:46px 30px 30px;
+      width:100%;
+    }
+
+    .processLine{
+      position:absolute;
+      left:86px;
+      right:86px;
+      top:62px;
+      height:1px;
+      border-top:2px solid color-mix(in srgb,var(--accent) 25%,transparent);
+    }
+
+    .processSteps{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:20px;
+      position:relative;
+      z-index:2;
+    }
+
+    .processStep{text-align:center}
+
+    .number{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      background:var(--accent);
+      font-size:13px;
+      font-weight:900;
+      margin:0 auto 22px;
+      box-shadow:0 10px 28px rgba(12,38,89,.16);
+    }
+
+    .processIcon{
+      width:64px;
+      height:64px;
+      margin:0 auto 18px;
+      border-radius:50%;
+      background:rgba(255,255,255,.9);
+      color:var(--accent);
+      border:1px solid var(--border);
+      box-shadow:0 16px 34px rgba(12,38,89,.08);
+      display:grid;
+      place-items:center;
+    }
+
+    .processIcon svg{width:29px;height:29px}
+
+    .processStep h3{
+      margin:0 0 10px;
+      font-size:15px;
+      line-height:1.2;
+      letter-spacing:-.015em;
+      font-weight:900;
+    }
+
+    .processStep p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+      font-weight:600;
+    }
+
+    .expandRow{
+      display:flex;
+      justify-content:flex-end;
+      padding:0 28px 26px;
+    }
+
+    .expandBtn{
+      border:none;
+      border-radius:15px;
+      background:var(--accent);
+      color:#fff;
+      padding:13px 16px;
+      font-weight:900;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      font-size:11.5px;
+      cursor:pointer;
+      box-shadow:0 14px 36px rgba(12,38,89,.16);
     }
 
     .moreDetail{
@@ -806,20 +917,6 @@
 
     .claim b{color:var(--accent)}
 
-    .expandBtn{
-      border:none;
-      border-radius:15px;
-      background:var(--accent);
-      color:#fff;
-      padding:13px 16px;
-      font-weight:900;
-      letter-spacing:.07em;
-      text-transform:uppercase;
-      font-size:11.5px;
-      cursor:pointer;
-      box-shadow:0 14px 36px rgba(12,38,89,.16);
-    }
-
     @media(max-width:1160px){
       .page{padding:14px}
 
@@ -833,8 +930,8 @@
       }
 
       .lines,
-      .premiumHalo,
-      .premiumConnector{
+      .premiumStage,
+      .premiumNet{
         display:none;
       }
 
@@ -847,10 +944,11 @@
         order:-1;
       }
 
-      .map.is-linked .centerArea{
+      .map.is-active .centerArea{
         opacity:1;
         filter:none;
         transform:none;
+        pointer-events:auto;
       }
 
       .topLeft,
@@ -861,13 +959,13 @@
         grid-row:auto;
       }
 
-      .map.is-linked .serviceCard{
-        opacity:.16;
-        filter:blur(2px);
+      .map.is-active .serviceCard{
+        opacity:.14;
+        filter:blur(2px) saturate(.75);
         pointer-events:none;
       }
 
-      .map.is-linked .serviceCard.is-active{
+      .map.is-active .serviceCard.linked{
         opacity:1;
         filter:none;
         pointer-events:auto;
@@ -888,6 +986,14 @@
       }
 
       .stripItem:last-child{border-bottom:none}
+
+      .processTop{grid-template-columns:1fr}
+      .processImage{height:180px;border-radius:22px}
+      .processLine{display:none}
+      .processSteps{grid-template-columns:1fr;gap:18px}
+      .processStep{text-align:left;display:grid;grid-template-columns:64px 1fr;gap:14px}
+      .number{margin:0 auto 8px}
+      .processIcon{margin-bottom:0}
     }
 
     @media(max-width:640px){
@@ -895,6 +1001,9 @@
       .cardHead{grid-template-columns:1fr}
       .modal{width:96vw}
       .processPanel{padding:18px}
+      .processTop{padding:22px 22px 0}
+      .processIntro{grid-template-columns:1fr}
+      .processFlow{padding:32px 22px 24px}
     }
   </style>
 </head>
@@ -916,19 +1025,19 @@
           <line class="line" x1="780" y1="392" x2="1170" y2="500"/>
         </svg>
 
-        <div class="premiumHalo"></div>
+        <div class="premiumStage"></div>
 
-        <div class="premiumConnector">
-          <svg viewBox="0 0 560 330">
-            <path d="M280 165 C205 105 145 85 80 82"/>
-            <path d="M280 165 C355 105 415 85 480 82"/>
-            <path d="M280 165 C205 225 145 245 80 248"/>
-            <path d="M280 165 C355 225 415 245 480 248"/>
-            <circle cx="280" cy="165" r="5"/>
-            <circle cx="80" cy="82" r="4"/>
-            <circle cx="480" cy="82" r="4"/>
-            <circle cx="80" cy="248" r="4"/>
-            <circle cx="480" cy="248" r="4"/>
+        <div class="premiumNet">
+          <svg viewBox="0 0 620 390">
+            <path d="M310 195 C220 105 135 92 70 85"/>
+            <path d="M310 195 C400 105 485 92 550 85"/>
+            <path d="M310 195 C220 285 135 298 70 305"/>
+            <path d="M310 195 C400 285 485 298 550 305"/>
+            <circle cx="310" cy="195" r="5"/>
+            <circle cx="70" cy="85" r="4"/>
+            <circle cx="550" cy="85" r="4"/>
+            <circle cx="70" cy="305" r="4"/>
+            <circle cx="550" cy="305" r="4"/>
           </svg>
         </div>
 
@@ -1084,10 +1193,42 @@
   </div>
 
   <script>
-    const data = {
+    const icons={
+      home:`<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg>`,
+      chart:`<svg viewBox="0 0 24 24"><path d="M3 17 8 12l4 4 8-9"/><path d="M15 7h5v5"/></svg>`,
+      shield:`<svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-5"/></svg>`,
+      heart:`<svg viewBox="0 0 24 24"><path d="M20.5 8.5c0 6-8.5 11-8.5 11S3.5 14.5 3.5 8.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8.5 2.5Z"/><path d="M8 12h3l1-2 2 4 1-2h2"/></svg>`,
+      people:`<svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"/><circle cx="12" cy="7" r="4"/><path d="M19 8h2M20 7v2"/></svg>`,
+      homeSearch:`<svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h8"/><circle cx="16" cy="16" r="3"/><path d="m18.5 18.5 2.5 2.5"/></svg>`,
+      chat:`<svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h8M8 14h5"/></svg>`,
+      check:`<svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+      target:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M21 12h-3M12 21v-3M3 12h3"/></svg>`,
+      pie:`<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9v9z"/><path d="M12 3a9 9 0 0 1 9 9h-9z"/></svg>`,
+      refresh:`<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/></svg>`,
+      document:`<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>`,
+      sliders:`<svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4"/></svg>`,
+      phone:`<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.4 2.1L8 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.5 2.6.6a2 2 0 0 1 2 2.3z"/></svg>`,
+      stetho:`<svg viewBox="0 0 24 24"><path d="M11 2v6"/><path d="M5 8h12"/><path d="M19 8v4a7 7 0 0 1-14 0V8"/><path d="M12 19v3"/><path d="M8 22h8"/></svg>`,
+      medical:`<svg viewBox="0 0 24 24"><path d="M9 3h6l1 3h3a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l1-3Z"/><path d="M12 10v6M9 13h6"/></svg>`,
+      sport:`<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-3 5"/><path d="M12 13l4 2"/><path d="M9 10l3-3 3 3"/></svg>`,
+      flag:`<svg viewBox="0 0 24 24"><path d="M4 21V4"/><path d="M4 4h12l-2 4 2 4H4"/><path d="M18 21c0-4-3-7-7-7"/></svg>`,
+      coins:`<svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v5c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 11v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg>`
+    };
+
+    const data={
       hypoteky:{
         theme:"blue",
+        icon:icons.home,
         title:"Hypotéky",
+        lead:"Provedu vás celým procesem – od prvního setkání až po klidné čerpání.",
+        image:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80",
+        steps:[
+          ["Úvodní setkání","Poznám vaši situaci, cíle a potřeby. Získám všechny důležité informace.",icons.people],
+          ["Návrh řešení","Provedu analýzu možností a vyberu řešení, které dává smysl právě vám.",icons.homeSearch],
+          ["Komunikace za vás","Jsem vaším zástupcem v jednání s bankou a dalšími stranami.",icons.chat],
+          ["Podmínky a čerpání","Hlídám všechny podmínky, termíny a připravuji hladké čerpání úvěru.",icons.check],
+          ["Spolupráce pokračuje","Dohlížím na výhodnost i po podpisu a jsem tu pro vás dlouhodobě.",icons.home]
+        ],
         productsTitle:"Produkty / co konkrétně u hypoték řeším",
         items:[
           ["Nové úvěry","Pomohu s nastavením hypotéky při koupi, výstavbě nebo rekonstrukci."],
@@ -1103,7 +1244,17 @@
 
       investice:{
         theme:"green",
+        icon:icons.chart,
         title:"Investice",
+        lead:"Budujeme a chráníme váš majetek s důrazem na dlouhodobý růst.",
+        image:"https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=900&q=80",
+        steps:[
+          ["Poznání vašich cílů","Ujasníme si vaše cíle, časový horizont a vztah k riziku.",icons.target],
+          ["Návrh strategie","Vytvořím strategii šitou na míru právě vám a vaší situaci.",icons.pie],
+          ["Výběr a rozložení","Vyberu vhodné nástroje a rozložím riziko napříč trhy a třídami aktiv.",icons.shield],
+          ["Pravidelná správa","Sleduji vývoj, rebalancuji a přizpůsobuji portfolio měnícím se podmínkám.",icons.chart],
+          ["Dlouhodobé partnerství","Jsem tu pro vás v každé fázi života a při důležitých finančních rozhodnutích.",icons.coins]
+        ],
         productsTitle:"Produkty / co konkrétně u investic řeším",
         items:[
           ["Strategie podle vašich cílů","Nastavuji investice podle časového horizontu, rezervy, tolerance k riziku a budoucích plánů."],
@@ -1119,7 +1270,17 @@
 
       pojisteni:{
         theme:"purple",
+        icon:icons.shield,
         title:"Pojištění",
+        lead:"Nastavím ochranu, která dává smysl vám i vaší rodině.",
+        image:"https://images.unsplash.com/photo-1589666564459-93cdd3ab856a?auto=format&fit=crop&w=900&q=80",
+        steps:[
+          ["Analýza rizik","Zmapuji, co je pro vás důležité chránit a kde máte slabá místa.",icons.document],
+          ["Návrh řešení","Vyberu vhodné pojistky a nastavím je tak, aby dávaly smysl a kryly skutečná rizika.",icons.document],
+          ["Optimalizace","Spojím kvalitní krytí s rozumnou cenou a přehledností.",icons.sliders],
+          ["Pravidelná aktualizace","Hlídám změny ve vašem životě i na trhu a upravuji pojistky podle potřeby.",icons.refresh],
+          ["Podpora při události","Když nastane problém, jsem tu pro vás a pomohu vše vyřešit.",icons.heart]
+        ],
         productsTitle:"Produkty / co konkrétně u pojištění řeším",
         items:[
           ["Zajištění příjmů","Ochrana při pracovní neschopnosti, úrazu nebo dlouhodobém výpadku příjmů."],
@@ -1135,7 +1296,17 @@
 
       pece:{
         theme:"teal",
+        icon:icons.heart,
         title:"Úrazová péče",
+        lead:"Pomohu vám projít těžkým obdobím od úrazu až zpět do života.",
+        image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+        steps:[
+          ["První kontakt","Jsem tu hned, když se stane úraz. Probereme situaci a další kroky.",icons.phone],
+          ["Doporučení specialisty","Propojím vás s ověřenými lékaři a zařízeními, kterým důvěřuji.",icons.stetho],
+          ["Diagnostika a plán","Pomohu zajistit potřebná vyšetření a nastavíme plán léčby a rehabilitace.",icons.medical],
+          ["Rehabilitace","Koordinuji rehabilitaci a další kroky tak, aby byl pokrok co nejlepší.",icons.sport],
+          ["Návrat do života","Podpořím vás na cestě zpět do plného výkonu a běžného života.",icons.flag]
+        ],
         productsTitle:"Služby / co konkrétně u poúrazové péče řeším",
         items:[
           ["Rychlý přístup k odborníkům","Spojím vás s ověřenými specialisty a pomohu s objednáním do 72 hodin."],
@@ -1150,111 +1321,92 @@
       }
     };
 
-    const backdrop = document.getElementById('modalBackdrop');
-    const content = document.getElementById('modalContent');
-    const close = document.getElementById('closeModal');
-    const serviceMap = document.getElementById('serviceMap');
-
-    const groups = {
-      hypoteky:['hypoteky','pojisteni','investice'],
-      pojisteni:['pojisteni','investice','pece'],
-      investice:['investice','pojisteni','pece'],
-      pece:['pece','pojisteni']
+    const groups={
+      hypoteky:["hypoteky","pojisteni","investice"],
+      pojisteni:["pojisteni","investice","pece"],
+      investice:["investice","pojisteni","pece"],
+      pece:["pece","pojisteni"]
     };
 
+    const backdrop=document.getElementById('modalBackdrop');
+    const content=document.getElementById('modalContent');
+    const close=document.getElementById('closeModal');
+    const serviceMap=document.getElementById('serviceMap');
+
     function renderSpecial(type){
-      if(type==="hypoTime"){
-        return `
-          <div class="specialBox">
-            <h4 class="sectionTitle">Výsledek tohoto procesu pro vás: průměrná časová úspora klienta</h4>
-            <table class="timeTable">
-              <thead>
-                <tr>
-                  <th>Činnost</th>
-                  <th>Bez nás</th>
-                  <th>S námi</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Analýza situace a bonity</td><td>1–2 hod</td><td>~0 hod</td></tr>
-                <tr><td>Příprava dokumentů</td><td>3–5 hod</td><td>~1 hod</td></tr>
-                <tr><td>Komunikace s bankou</td><td>5–10 hod</td><td>0 hod</td></tr>
-                <tr><td>Podání na katastr</td><td>2–3 hod</td><td>0 hod</td></tr>
-                <tr><td>Celkem</td><td>~11–20 hod</td><td>~1 hod</td></tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
+      if(type==="hypoTime")return`
+        <div class="specialBox">
+          <h4 class="sectionTitle">Výsledek tohoto procesu pro vás: průměrná časová úspora klienta</h4>
+          <table class="timeTable">
+            <thead>
+              <tr><th>Činnost</th><th>Bez nás</th><th>S námi</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Analýza situace a bonity</td><td>1–2 hod</td><td>~0 hod</td></tr>
+              <tr><td>Příprava dokumentů</td><td>3–5 hod</td><td>~1 hod</td></tr>
+              <tr><td>Komunikace s bankou</td><td>5–10 hod</td><td>0 hod</td></tr>
+              <tr><td>Podání na katastr</td><td>2–3 hod</td><td>0 hod</td></tr>
+              <tr><td>Celkem</td><td>~11–20 hod</td><td>~1 hod</td></tr>
+            </tbody>
+          </table>
+        </div>`;
 
-      if(type==="investProcess"){
-        return `
-          <div class="specialBox">
-            <h4 class="sectionTitle">Jak probíhá investiční spolupráce</h4>
-            <div class="miniProcess">
-              <div class="miniStep"><strong>Analýza</strong><span>Cíle, rezervy, horizont a riziko.</span></div>
-              <div class="miniStep"><strong>Plán</strong><span>Strategie podle vašeho života.</span></div>
-              <div class="miniStep"><strong>Realizace</strong><span>Pravidelné, jednorázové, FKI.</span></div>
-              <div class="miniStep"><strong>Úpravy</strong><span>Reakce na trh i změny.</span></div>
-              <div class="miniStep"><strong>Servis</strong><span>Dlouhodobá kontrola.</span></div>
-            </div>
+      if(type==="investProcess")return`
+        <div class="specialBox">
+          <h4 class="sectionTitle">Jak probíhá investiční spolupráce</h4>
+          <div class="miniProcess">
+            <div class="miniStep"><strong>Analýza</strong><span>Cíle, rezervy, horizont a riziko.</span></div>
+            <div class="miniStep"><strong>Plán</strong><span>Strategie podle vašeho života.</span></div>
+            <div class="miniStep"><strong>Realizace</strong><span>Pravidelné, jednorázové, FKI.</span></div>
+            <div class="miniStep"><strong>Úpravy</strong><span>Reakce na trh i změny.</span></div>
+            <div class="miniStep"><strong>Servis</strong><span>Dlouhodobá kontrola.</span></div>
           </div>
-        `;
-      }
+        </div>`;
 
-      if(type==="insuranceValue"){
-        return `
-          <div class="specialBox">
-            <h4 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h4>
-            <div class="miniProcess">
-              <div class="miniStep"><strong>Nastavení</strong><span>Rizika, která opravdu dávají smysl.</span></div>
-              <div class="miniStep"><strong>Kontrola</strong><span>Výluky, limity a podmínky.</span></div>
-              <div class="miniStep"><strong>Produkty</strong><span>Sleduji vývoj možností na trhu.</span></div>
-              <div class="miniStep"><strong>Aktualizace</strong><span>Podle života, majetku a příjmů.</span></div>
-              <div class="miniStep"><strong>Událost</strong><span>Pomoc při řešení problému.</span></div>
-            </div>
+      if(type==="insuranceValue")return`
+        <div class="specialBox">
+          <h4 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h4>
+          <div class="miniProcess">
+            <div class="miniStep"><strong>Nastavení</strong><span>Rizika, která opravdu dávají smysl.</span></div>
+            <div class="miniStep"><strong>Kontrola</strong><span>Výluky, limity a podmínky.</span></div>
+            <div class="miniStep"><strong>Produkty</strong><span>Sleduji vývoj možností na trhu.</span></div>
+            <div class="miniStep"><strong>Aktualizace</strong><span>Podle života, majetku a příjmů.</span></div>
+            <div class="miniStep"><strong>Událost</strong><span>Pomoc při řešení problému.</span></div>
           </div>
-        `;
-      }
+        </div>`;
 
-      if(type==="careValue"){
-        return `
-          <div class="specialBox">
-            <h4 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h4>
-            <table class="timeTable">
-              <thead>
-                <tr>
-                  <th>Bez koordinátora</th>
-                  <th>Se mnou</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Hledání specialisty trvá dny až týdny</td><td>Spojím vás s odborníkem do 72 hodin</td></tr>
-                <tr><td>Dlouhé čekání na diagnostiku</td><td>Diagnostika, například SONO/MRI, do 3 dnů</td></tr>
-                <tr><td>Nejasný postup a chybějící návaznost</td><td>Návazná péče a fyzioterapie</td></tr>
-                <tr><td>Složitá administrativa a komunikace s pojišťovnou</td><td>Pomoc s dokumenty a pojistným plněním</td></tr>
-                <tr><td>Chaotický návrat bez plánu</td><td>Postupný návrat do sportu pod dohledem odborníků</td></tr>
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
+      if(type==="careValue")return`
+        <div class="specialBox">
+          <h4 class="sectionTitle">Co pro vás znamená spolupráce se mnou</h4>
+          <table class="timeTable">
+            <thead>
+              <tr><th>Bez koordinátora</th><th>Se mnou</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Hledání specialisty trvá dny až týdny</td><td>Spojím vás s odborníkem do 72 hodin</td></tr>
+              <tr><td>Dlouhé čekání na diagnostiku</td><td>Diagnostika, například SONO/MRI, do 3 dnů</td></tr>
+              <tr><td>Nejasný postup a chybějící návaznost</td><td>Návazná péče a fyzioterapie</td></tr>
+              <tr><td>Složitá administrativa a komunikace s pojišťovnou</td><td>Pomoc s dokumenty a pojistným plněním</td></tr>
+              <tr><td>Chaotický návrat bez plánu</td><td>Postupný návrat do sportu pod dohledem odborníků</td></tr>
+            </tbody>
+          </table>
+        </div>`;
 
       return "";
     }
 
     function openModal(key){
-      const item = data[key];
-      const detailId = `more-${key}`;
+      const item=data[key];
+      const detailId=`more-${key}`;
 
-      const cardImages = {
+      const cardImages={
         hypoteky:'hypoteky_proces.png',
         investice:'investice_proces.png',
         pojisteni:'pojisteni_proces.png',
         pece:'urazova_pece_proces.png'
       };
 
-      content.innerHTML = `
+      content.innerHTML=`
         <div class="processPanel ${item.theme}">
           <section class="referencePanel">
             <img src="${cardImages[key]}" alt="${item.title} - proces spolupráce">
@@ -1273,24 +1425,22 @@
                     <b>${title}</b>
                     <span>${text}</span>
                   </div>
-                </div>
-              `).join('')}
+                </div>`).join('')}
             </div>
             ${renderSpecial(item.special)}
             <div class="claim">${item.claim}</div>
           </section>
-        </div>
-      `;
+        </div>`;
 
       backdrop.classList.add('active');
     }
 
     function toggleMore(id,btn){
-      const el = document.getElementById(id);
-      if(!el) return;
+      const el=document.getElementById(id);
+      if(!el)return;
 
       el.classList.toggle('open');
-      btn.textContent = el.classList.contains('open')
+      btn.textContent=el.classList.contains('open')
         ? 'Skrýt detail služeb ↑'
         : 'Zobrazit detail služeb ↓';
 
@@ -1299,9 +1449,9 @@
       }
     }
 
-    function setGroup(group){
+    function clearPremiumHover(){
       serviceMap.classList.remove(
-        'is-linked',
+        'is-active',
         'group-hypoteky',
         'group-pojisteni',
         'group-investice',
@@ -1309,25 +1459,29 @@
       );
 
       document.querySelectorAll('.serviceCard').forEach(card=>{
-        card.classList.remove('is-active');
-      });
-
-      if(!group) return;
-
-      serviceMap.classList.add('is-linked',`group-${group}`);
-
-      groups[group].forEach(name=>{
-        const card = document.querySelector(`.card-${name}`);
-        if(card) card.classList.add('is-active');
+        card.classList.remove('linked');
       });
     }
 
-    document.querySelectorAll('[data-group]').forEach(btn=>{
-      btn.addEventListener('mouseenter',()=>setGroup(btn.dataset.group));
-      btn.addEventListener('focus',()=>setGroup(btn.dataset.group));
+    function setPremiumHover(group){
+      clearPremiumHover();
+
+      if(!groups[group])return;
+
+      serviceMap.classList.add('is-active',`group-${group}`);
+
+      groups[group].forEach(name=>{
+        const card=document.querySelector(`.card-${name}`);
+        if(card)card.classList.add('linked');
+      });
+    }
+
+    document.querySelectorAll('[data-group]').forEach(card=>{
+      card.addEventListener('mouseenter',()=>setPremiumHover(card.dataset.group));
+      card.addEventListener('focus',()=>setPremiumHover(card.dataset.group));
     });
 
-    serviceMap.addEventListener('mouseleave',()=>setGroup(null));
+    serviceMap.addEventListener('mouseleave',clearPremiumHover);
 
     document.querySelectorAll('[data-modal]').forEach(btn=>{
       btn.addEventListener('click',()=>openModal(btn.dataset.modal));
@@ -1340,61 +1494,12 @@
     close.addEventListener('click',closeModal);
 
     backdrop.addEventListener('click',e=>{
-      if(e.target===backdrop) closeModal();
+      if(e.target===backdrop)closeModal();
     });
 
     document.addEventListener('keydown',e=>{
-      if(e.key==='Escape') closeModal();
+      if(e.key==='Escape')closeModal();
     });
-    (function(){
-  const map = document.getElementById("serviceMap") || document.querySelector(".map");
-
-  if (!map) return;
-
-  const groups = {
-    hypoteky: ["hypoteky", "pojisteni", "investice"],
-    pojisteni: ["pojisteni", "investice", "pece"],
-    investice: ["investice", "pojisteni", "pece"],
-    pece: ["pece", "pojisteni"]
-  };
-
-  function clearPremiumHover(){
-    map.classList.remove(
-      "active",
-      "is-linked",
-      "group-hypoteky",
-      "group-pojisteni",
-      "group-investice",
-      "group-pece"
-    );
-
-    document.querySelectorAll(".serviceCard").forEach(card => {
-      card.classList.remove("linked", "is-active");
-    });
-  }
-
-  function setPremiumHover(group){
-    clearPremiumHover();
-
-    if (!groups[group]) return;
-
-    map.classList.add("active", "is-linked", `group-${group}`);
-
-    groups[group].forEach(name => {
-      const card = document.querySelector(`.card-${name}`);
-      if (card) {
-        card.classList.add("linked", "is-active");
-      }
-    });
-  }
-
-  document.querySelectorAll("[data-group]").forEach(card => {
-    card.addEventListener("mouseenter", () => setPremiumHover(card.dataset.group));
-    card.addEventListener("focus", () => setPremiumHover(card.dataset.group));
-  });
-
-  map.addEventListener("mouseleave", clearPremiumHover);
-})();
   </script>
 </body>
 </html>
